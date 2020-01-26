@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "resolve-locations": "node -p \"!!require('crawler')\" || npm install crawler && node scripts/resolve-locations.js"
   },
   "dependencies": {
     "core-js": "^3.4.4",
@@ -18,5 +19,8 @@
     "@vue/cli-plugin-vuex": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
     "vue-template-compiler": "^2.6.10"
+  },
+  "optionalDependencies": {
+    "crawler": "^1.2.1"
   }
 }
