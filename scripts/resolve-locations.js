@@ -5,15 +5,20 @@ require('./load-env');
 
 const PUBLIC_DIR = path.join(__dirname, '../public/');
 const DXY_DIR = path.join(PUBLIC_DIR, 'dxy');
-const LOC_DOC_PATH = path.join(PUBLIC_DIR, 'location-document.json');
+const LOC_DOC_PATH = path.join(PUBLIC_DIR, 'location-document.js');
 
-const LocDoc = JSON.parse(fs.readFileSync(LOC_DOC_PATH).toString());
+function evalJsVar(text) {
+  return (new Function(`var window = {}; ${text}; for(let k in window) {return window[k];}`))();
+}
+
+const LocDocStr = fs.readFileSync(LOC_DOC_PATH).toString();
+const LocDoc = evalJsVar(LocDocStr);
 
 function getLatestAreaStat() {
   const latest = fs.readdirSync(DXY_DIR).sort().pop();
   console.log('latest:', latest);
   const latestFileStr = fs.readFileSync(path.join(DXY_DIR, latest)).toString();
-  return (new Function(`var window = {}; ${latestFileStr}; for(let k in window) {return window[k];}`))();
+  return evalJsVar(latestFileStr);
 }
 
 function getUnresolvedNamesInAreaStat(areaStat) {
@@ -38,13 +43,18 @@ function getUnresolvedNamesInAreaStat(areaStat) {
 function fetchNamesLocation(names) {
   if (!process.env.AMAP_KEY) {
     throw 'cannot find amap key, set `AMAP_KEY` in `env.config.local.js` or env';
-  }
-
-  console.log(names.length, 'names to fetch');
+  }  
   
   return new Promise((res, rej) => {
+    console.log(names.length, 'names to fetch');
+
     const nameLocationMap = {};
 
+    if (names.length === 0) {
+      res(nameLocationMap);
+      return;
+    }
+    
     const c = new Crawler({
       rateLimit: 20,
       jQuery: false,
@@ -58,7 +68,11 @@ function fetchNamesLocation(names) {
           const result = response.body;
           const geocode = result.geocodes[0];
           if (geocode) {
-            const { province, city, location } = geocode;
+            let { province, city, location } = geocode;
+
+            city = city.length ? city : null;
+            const loc = location.split(',');
+            location = [+loc[0], +loc[1]];
 
             nameLocationMap[name] = {
               province, city, location
@@ -94,7 +108,10 @@ function fetchNamesLocation(names) {
 (async function main() {
   const unresolvedNames = getUnresolvedNamesInAreaStat(getLatestAreaStat());
   const nameLocationMap = await fetchNamesLocation(unresolvedNames);
+  console.log(nameLocationMap);
+
   Object.assign(LocDoc, nameLocationMap);
   
-  fs.writeFileSync(LOC_DOC_PATH, JSON.stringify(LocDoc));
+  const formatJson = JSON.stringify(LocDoc, null, 2);
+  fs.writeFileSync(LOC_DOC_PATH, `window.LocDoc=${formatJson};`);
 })();
