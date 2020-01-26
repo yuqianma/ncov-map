@@ -1,18 +1,28 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="info-card">{{info}}</div>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+<style>
+.info-card {
+  position: fixed;
+}
+</style>
 
+<script>
 export default {
   name: 'home',
-  components: {
-    HelloWorld
-  }
+  computed: {
+    info() {
+      const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];
+      if (!point) {
+        return '';
+      }
+      const data = point[3];
+      console.log(data);
+      return `${data.cityName || data.provinceName}: ${data.confirmedCount}`;
+    }
+  },
 }
 </script>
