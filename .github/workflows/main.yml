@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '*/30 * * * *'
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=cn_time::$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')"
+    - name: Monit
+      run: |
+        npm run monit
+    - name: Check changes
+      id: check
+      run: echo "::set-output name=dirty::$([[ -z $(git status -s) ]] || echo 'true')}"
+    - name: Debug
+      run: echo "${{ steps.check.outputs.dirty }}"
+    - name: Commit changes
+      if: steps.check.outputs.result
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "MActor"
+        git add --all
+        git commit -m 'update by action ${{ steps.date.outputs.cn_time }}'
+        remote_repo="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+        git push "${remote_repo}" HEAD:${GITHUB_REF}
+    - name: Install & Build
+      env:
+        AMAP_KEY: ${{ secrets.AMAP_KEY }}
+        SC_KEY: ${{ secrets.SC_KEY }}
+      run: |
+        npm ci
+        npm run build
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v2
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./dist
+      with:
+        emptyCommits: false
