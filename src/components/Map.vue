@@ -9,7 +9,6 @@ div {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #ccc;
 }
 </style>
 
@@ -23,7 +22,8 @@ export default {
   mounted () {
     const map = new maptalks.Map(this.$refs.container, {
       center: [104.299012, 34.781634],
-      zoom: 4,
+      // center: [114.305392, 30.593098],
+      zoom: 3,
       minZoom: 3,
       maxZoom: 10,
       zoomControl: {
@@ -46,13 +46,15 @@ export default {
         new maptalks.TileLayer('tile', {
           urlTemplate: 'https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetGray/MapServer/tile/{z}/{y}/{x}',
           maxAvailableZoom: 10,
-          cssFilter: 'sepia(100%) grayscale(100%)'
-          // cssFilter: 'invert(90%)'
+          cssFilter: 'sepia(100%) grayscale(100%)',
+          // cssFilter: 'invert(90%)',
+          opacity: 0.5,
         }),
         new maptalks.TileLayer('boudaries', {
           urlTemplate: 'https://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer/tile/{z}/{y}/{x}',
           maxAvailableZoom: 8,
-          cssFilter: 'grayscale(100%)'
+          cssFilter: 'grayscale(100%)',
+          opacity: 0.5,
         }),
       ]
     });
@@ -79,7 +81,7 @@ export default {
       }
     ).addTo(map);
 
-    map.on('zooming zoomend', ({ to }) => {
+    map.on('zoomend', ({ to }) => {
       const pixel = this.map.distanceToPixel(DISTANCE).width | 0;
       this.heatLayer.config({
         radius: pixel,
