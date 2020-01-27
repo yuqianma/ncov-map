@@ -6,6 +6,7 @@ require('./load-env');
 const PUBLIC_DIR = path.join(__dirname, '../public/');
 const DXY_DIR = path.join(PUBLIC_DIR, 'dxy');
 const LOC_DOC_PATH = path.join(PUBLIC_DIR, 'location-document.js');
+const HTML_PATH = path.join(PUBLIC_DIR, 'index.html');
 
 function evalJsVar(text) {
   return (new Function(`var window = {}; ${text}; for(let k in window) {return window[k];}`))();
@@ -14,10 +15,11 @@ function evalJsVar(text) {
 const LocDocStr = fs.readFileSync(LOC_DOC_PATH).toString();
 const LocDoc = evalJsVar(LocDocStr);
 
+const LATEST_JS = fs.readdirSync(DXY_DIR).sort().pop();
+
 function getLatestAreaStat() {
-  const latest = fs.readdirSync(DXY_DIR).sort().pop();
-  console.log('latest:', latest);
-  const latestFileStr = fs.readFileSync(path.join(DXY_DIR, latest)).toString();
+  console.log('latest:', LATEST_JS);
+  const latestFileStr = fs.readFileSync(path.join(DXY_DIR, LATEST_JS)).toString();
   return evalJsVar(latestFileStr);
 }
 
@@ -46,7 +48,6 @@ function fetchNamesLocation(names) {
   }  
   
   return new Promise((res, rej) => {
-    console.log(names.length, 'names to fetch');
 
     const nameLocationMap = {};
 
@@ -107,11 +108,23 @@ function fetchNamesLocation(names) {
 
 (async function main() {
   const unresolvedNames = getUnresolvedNamesInAreaStat(getLatestAreaStat());
-  const nameLocationMap = await fetchNamesLocation(unresolvedNames);
-  console.log(nameLocationMap);
+  if (unresolvedNames.length) {
+    console.log(unresolvedNames.length, 'names to fetch');
 
-  Object.assign(LocDoc, nameLocationMap);
-  
-  const formatJson = JSON.stringify(LocDoc, null, 2);
-  fs.writeFileSync(LOC_DOC_PATH, `window.LocDoc=${formatJson};`);
+    const nameLocationMap = await fetchNamesLocation(unresolvedNames);
+    Object.assign(LocDoc, nameLocationMap);
+    
+    const formatJson = JSON.stringify(LocDoc, null, 2);
+    fs.writeFileSync(LOC_DOC_PATH, `window.LocDoc=${formatJson};`);
+    console.log(`location-document.js updated`);
+  } else {
+    console.log('all names are resolved');
+  }
+
+  const htmlStr = fs.readFileSync(HTML_PATH).toString();
+  if (!htmlStr.includes(LATEST_JS)) {
+    const updatedHtmlStr = htmlStr.replace(/getAreaStat\.\d+\.js/, LATEST_JS);
+    fs.writeFileSync(HTML_PATH, updatedHtmlStr);
+    console.log(`index.html updated: ${LATEST_JS}`);
+  }
 })();
