@@ -1,27 +1,16 @@
 const fs = require('fs');
-const path = require('path');
 const Crawler = require('crawler');
+const { PATH } = require('./constants');
+const { evalJsVar, getLatestJsFileName, getLatestAreaStat } = require('./util');
 require('./load-env');
 
-const PUBLIC_DIR = path.join(__dirname, '../public/');
-const DXY_DIR = path.join(PUBLIC_DIR, 'dxy');
-const LOC_DOC_PATH = path.join(PUBLIC_DIR, 'location-document.js');
-const HTML_PATH = path.join(PUBLIC_DIR, 'index.html');
-
-function evalJsVar(text) {
-  return (new Function(`var window = {}; ${text}; for(let k in window) {return window[k];}`))();
-}
+const {
+  LOC_DOC_PATH,
+  HTML_PATH
+} = PATH;
 
 const LocDocStr = fs.readFileSync(LOC_DOC_PATH).toString();
 const LocDoc = evalJsVar(LocDocStr);
-
-const LATEST_JS = fs.readdirSync(DXY_DIR).sort().pop();
-
-function getLatestAreaStat() {
-  console.log('latest:', LATEST_JS);
-  const latestFileStr = fs.readFileSync(path.join(DXY_DIR, LATEST_JS)).toString();
-  return evalJsVar(latestFileStr);
-}
 
 function getUnresolvedNamesInAreaStat(areaStat) {
   const nameMap = {};
@@ -106,7 +95,7 @@ function fetchNamesLocation(names) {
   });
 }
 
-(async function main() {
+async function resolveLocations() {
   const unresolvedNames = getUnresolvedNamesInAreaStat(getLatestAreaStat());
   if (unresolvedNames.length) {
     console.log(unresolvedNames.length, 'names to fetch');
@@ -122,9 +111,12 @@ function fetchNamesLocation(names) {
   }
 
   const htmlStr = fs.readFileSync(HTML_PATH).toString();
-  if (!htmlStr.includes(LATEST_JS)) {
-    const updatedHtmlStr = htmlStr.replace(/getAreaStat\.\d+\.js/, LATEST_JS);
+  const latestJs = getLatestJsFileName();
+  if (!htmlStr.includes(latestJs)) {
+    const updatedHtmlStr = htmlStr.replace(/getAreaStat\.\d+\.js/, latestJs);
     fs.writeFileSync(HTML_PATH, updatedHtmlStr);
-    console.log(`index.html updated: ${LATEST_JS}`);
+    console.log(`index.html updated: ${latestJs}`);
   }
-})();
+}
+
+module.exports = resolveLocations;

@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "resolve-locations": "node -p \"!!require('crawler')\" || npm install crawler && node scripts/resolve-locations.js"
+    "monit": "node -p \"!!require('crawler')\" || npm install crawler && node scripts/monit.js"
   },
   "dependencies": {
     "core-js": "^3.4.4",
