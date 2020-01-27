@@ -16,33 +16,45 @@ div {
 <script>
 import { mapGetters } from 'vuex';
 
-const DISTANCE = 30e3;
+const DISTANCE = 50e3;
 
 export default {
   name: 'Map',
   mounted () {
     const map = new maptalks.Map(this.$refs.container, {
-      center: [104.299012 + 4, 34.781634],
+      center: [104.299012, 34.781634],
       zoom: 4,
       minZoom: 3,
+      maxZoom: 10,
       zoomControl: {
         'position'  : 'top-right',
         'slider'    : false,
         'zoomLevel' : false
       },
-      // scaleControl: {
-      //   'position'  : 'bottom-right',
-      //   'maxWidth': 100,
-      //   'metric': true
-      // },
-      attribution: {
-        // content: ''
-      },
-      baseLayer: new maptalks.TileLayer('base', {
-        urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        subdomains: ['a','b','c','d'],
-        attribution: '&copy;<a href="http://osm.org">OSM</a>, &copy;<a href="https://carto.com/">CARTO</a>'
-      }),
+      layers: [
+        // new maptalks.TileLayer('carto', {
+        //   urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        //   subdomains: ['a','b','c','d'],
+        //   attribution: '&copy;<a href="http://osm.org">OSM</a>, &copy;<a href="https://carto.com/">CARTO</a>',
+        // }),
+        // new maptalks.TileLayer('amap', {
+        //   urlTemplate: 'http://wprd0{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7',
+        //   subdomains: ['1', '2', '3', '4'],
+        //   attribution: '&copy;Amap',
+        //   cssFilter: 'sepia(100%) grayscale(100%)'
+        // }),
+        new maptalks.TileLayer('tile', {
+          urlTemplate: 'https://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetGray/MapServer/tile/{z}/{y}/{x}',
+          maxAvailableZoom: 10,
+          cssFilter: 'sepia(100%) grayscale(100%)'
+          // cssFilter: 'invert(90%)'
+        }),
+        new maptalks.TileLayer('boudaries', {
+          urlTemplate: 'https://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer/tile/{z}/{y}/{x}',
+          maxAvailableZoom: 8,
+          cssFilter: 'grayscale(100%)'
+        }),
+      ]
     });
     map.setMaxExtent([73.502355, 16, 135.09567, 53.563269]);
     this.map = map;
@@ -84,7 +96,15 @@ export default {
   },
   methods: {
     appendEventCircles(points) {
+      let lastTarget = null;
       const pick = (e) => {
+        lastTarget && lastTarget.updateSymbol({
+          lineWidth: 0
+        });
+        e.target.updateSymbol({
+          lineWidth: 2
+        });
+        lastTarget = e.target;
         this.$store.commit('setPickedIdx', e.target.options.idx);
       }
       this.eventLayer.addGeometry(points.map((p, i) => {
