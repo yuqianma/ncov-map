@@ -76,8 +76,15 @@ export default {
       this.visiblePoints,
       {
         radius: pixel,
-        blur: pixel,
-        gradient: ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {}),
+        blur: pixel / 2,
+        gradient: {
+          0.4: 'blue',
+          0.6: 'cyan',
+          0.7: 'lime',
+          0.8: 'yellow',
+          1.0: 'red'
+        },
+        // gradient: ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {}),
       }
     ).addTo(map);
 

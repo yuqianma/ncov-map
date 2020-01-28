@@ -1,3 +1,8 @@
+const MergeNameMap = {
+  '北京市': 1,
+  '上海市': 1
+};
+
 function locateName(name) {
   return LocDoc[name].location;
 }
@@ -15,8 +20,8 @@ export function processAreaStat(areaStat) {
   areaStat.forEach(area => {
     const { provinceName } = area;
 
-    // merged Beijing seems better...
-    if (provinceName !== '北京市' && area.cities.length) {
+    // merged Beijing & Shanghai seems better...
+    if (!MergeNameMap[provinceName] && area.cities.length) {
       // city level, use `province+city`
       area.cities.forEach(city => {
         putPoint(locateName(provinceName + city.cityName), city);
