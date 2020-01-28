@@ -1,12 +1,16 @@
 <template>
   <div class="home">
-    <div class="info-card">{{info}}</div>
+    <div class="info info-time">{{formattedTime}}</div>
+    <div class="info info-point">{{pointInfo}}</div>
   </div>
 </template>
 
 <style>
-.info-card {
+.info {
   position: fixed;
+}
+.info-point {
+  top: 2em;
 }
 </style>
 
@@ -14,7 +18,10 @@
 export default {
   name: 'home',
   computed: {
-    info() {
+    formattedTime() {
+      return dayjs(this.$store.state.dataTime).format('YYYY-MM-DD HH:mm');
+    },
+    pointInfo() {
       const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];
       if (!point) {
         return '';

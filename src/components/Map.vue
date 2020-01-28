@@ -84,6 +84,14 @@ export default {
           0.8: 'yellow',
           1.0: 'red'
         },
+        // gradient: {
+        //   // ["#5d01a6", "#9c179e", "#cb4779", "#ed7953", "#fdb32f"]
+        //   0.4: "#5d01a6",
+        //   0.6: "#9c179e",
+        //   0.7: "#cb4779",
+        //   0.8: "#ed7953",
+        //   1.0: "#fdb32f"
+        // }
         // gradient: ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {}),
       }
     ).addTo(map);
@@ -96,12 +104,15 @@ export default {
       });
     });
 
-    this.appendEventCircles(this.visiblePoints);
+    // this.appendEventCircles(this.visiblePoints);
   },
   computed: {
     ...mapGetters(['visiblePoints'])
   },
   watch: {
+    visiblePoints(points) {
+      this.heatLayer.setData(points);
+    }
   },
   methods: {
     appendEventCircles(points) {

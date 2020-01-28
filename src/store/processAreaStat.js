@@ -4,6 +4,10 @@ const MergeNameMap = {
 };
 
 function locateName(name) {
+  if (!LocDoc[name]) {
+    console.error(name);
+    return [];
+  }
   return LocDoc[name].location;
 }
 
