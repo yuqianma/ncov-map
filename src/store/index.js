@@ -6,7 +6,6 @@ import { processAreaStat } from './processAreaStat';
 Vue.use(Vuex);
 
 const AreaStatIndex = window.AreaStatIndex;
-AreaStatIndex.shift();
 
 function getTimeFromAreaStatFileName(filename) {
   return +filename.replace(/[^\d]/g, '');
