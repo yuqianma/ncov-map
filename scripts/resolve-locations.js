@@ -1,12 +1,11 @@
 const fs = require('fs');
 const Crawler = require('crawler');
 const { PATH } = require('./constants');
-const { evalJsVar, getLatestJsFileName, getLatestAreaStat } = require('./util');
+const { evalJsVar, getLatestAreaStat } = require('./util');
 require('./load-env');
 
 const {
   LOC_DOC_PATH,
-  HTML_PATH
 } = PATH;
 
 const LocDocStr = fs.readFileSync(LOC_DOC_PATH).toString();
@@ -108,14 +107,6 @@ async function resolveLocations() {
     console.log(`location-document.js updated`);
   } else {
     console.log('all names are resolved');
-  }
-
-  const htmlStr = fs.readFileSync(HTML_PATH).toString();
-  const latestJs = getLatestJsFileName();
-  if (!htmlStr.includes(latestJs)) {
-    const updatedHtmlStr = htmlStr.replace(/getAreaStat\.\d+\.js/, latestJs);
-    fs.writeFileSync(HTML_PATH, updatedHtmlStr);
-    console.log(`index.html updated: ${latestJs}`);
   }
 }
 

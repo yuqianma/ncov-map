@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const Crawler = require('crawler');
 const { PATH } = require('./constants');
 const { evalJsVar, getLatestAreaStatStr } = require('./util');
-const resolveLocations = require('./resolve-locations');
+const persistData = require('./persist-data');
 require('./load-env');
 
 const {
@@ -48,15 +48,17 @@ c.queue('https://3g.dxy.cn/newh5/view/pneumonia');
 
 async function compareAndSave(str_getAreaStat, str_getStatisticsService) {
   if (latestFileStr === str_getAreaStat) {
-    console.log('same, do nothing');
+    
+    console.log('same');
+    await persistData();
+
   } else {
 
     const filepath = path.join(DXY_DIR, `getAreaStat.${+new Date()}.js`);
     fs.writeFileSync(filepath, str_getAreaStat);
     console.log(`write to`, filepath);
 
-    await resolveLocations();
-
+    await persistData();
   
     // for notification only
     let countText = '';
