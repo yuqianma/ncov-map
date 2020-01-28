@@ -16,10 +16,22 @@
     <script src="dxy/getAreaStat.1580214814712.js"></script>
   </head>
   <body>
+
     <noscript>
       <strong>We're sorry but ncov-map doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
+  <% if (NODE_ENV === 'production') { %>
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?b00c29c5803fc0a6f46f0cfc6abcfe09";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+  <% } %>
 </html>
