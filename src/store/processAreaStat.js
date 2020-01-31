@@ -1,6 +1,7 @@
 const MergeNameMap = {
   '北京市': 1,
-  '上海市': 1
+  '上海市': 1,
+  '天津市': 1
 };
 
 function locateName(name) {

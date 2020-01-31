@@ -11,11 +11,13 @@ function getTimeFromAreaStatFileName(filename) {
   return +filename.replace(/[^\d]/g, '');
 }
 
-export default new Vuex.Store({
+const LatestTime = getTimeFromAreaStatFileName(AreaStatIndex[AreaStatIndex.length - 1]);
+
+const store = new Vuex.Store({
   state: {
-    cityPoints: processAreaStat(window.getAreaStat),
+    cityPoints: [],
     pickedIdx: -1,
-    dataTime: getTimeFromAreaStatFileName(AreaStatIndex.slice(-1)[0]),
+    dataTime: null,
   },
   getters: {
     visiblePoints({ cityPoints }) {
@@ -45,9 +47,9 @@ export default new Vuex.Store({
         })
       ).then(res => {
         res.forEach((d, i) => {
-          const time = dayjs(d.time).format('YYYY-MM-DD HH:mm');
-          const num = d.reduce((n, p) => n + p.confirmedCount, 0);
-          console.log(time, num);
+          // const time = dayjs(d.time).format('YYYY-MM-DD HH:mm');
+          // const num = d.reduce((n, p) => n + p.confirmedCount, 0);
+          // console.log(time, num);
 
           setTimeout(() => {
             commit('updateCityPoints', d);
@@ -58,4 +60,12 @@ export default new Vuex.Store({
   },
   modules: {
   }
-})
+});
+
+(() => {
+  const d = window.getAreaStat;
+  d.time = LatestTime;
+  store.commit('updateCityPoints', d);
+})();
+
+export default store;

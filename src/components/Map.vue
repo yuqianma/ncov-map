@@ -7,8 +7,8 @@ div {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 </style>
 
@@ -16,6 +16,12 @@ div {
 import { mapGetters } from 'vuex';
 
 const DISTANCE = 50e3;
+
+// const DXYColorMap = [
+//   [       0,          9,        99,       499,      999,      1000],
+//   ["#ffffff", "#fca589", "#fb7f60", "#f6573f", "#e13128", "#c1181b"]
+// ];
+// const DXYGradient = ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {})
 
 export default {
   name: 'Map',
@@ -65,18 +71,14 @@ export default {
 
     this.eventLayer = new maptalks.VectorLayer('v').addTo(map);
 
-    const pixel = this.map.distanceToPixel(DISTANCE).width | 0;
+    const pixel = this.map.distanceToPixel(DISTANCE).width;
 
-    const ColorMap = [
-      [       0,          9,        99,       499,      999,      1000],
-      ["#ffffff", "#fca589", "#fb7f60", "#f6573f", "#e13128", "#c1181b"]
-    ];
     this.heatLayer = new maptalks.HeatLayer(
       'heat',
       this.visiblePoints,
       {
         radius: pixel,
-        blur: pixel / 2,
+        blur: pixel,
         gradient: {
           0.4: 'blue',
           0.6: 'cyan',
@@ -85,6 +87,10 @@ export default {
           1.0: 'red'
         },
         // gradient: {
+        //   0.5: 'blue',
+        //   1.0: 'magenta'
+        // },
+        // gradient: {
         //   // ["#5d01a6", "#9c179e", "#cb4779", "#ed7953", "#fdb32f"]
         //   0.4: "#5d01a6",
         //   0.6: "#9c179e",
@@ -92,19 +98,18 @@ export default {
         //   0.8: "#ed7953",
         //   1.0: "#fdb32f"
         // }
-        // gradient: ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {}),
       }
     ).addTo(map);
 
     map.on('zoomend', ({ to }) => {
-      const pixel = this.map.distanceToPixel(DISTANCE).width | 0;
+      const pixel = this.map.distanceToPixel(DISTANCE).width;
       this.heatLayer.config({
         radius: pixel,
         blur: pixel,
       });
     });
 
-    // this.appendEventCircles(this.visiblePoints);
+    this.appendEventCircles(this.visiblePoints);
   },
   computed: {
     ...mapGetters(['visiblePoints'])
