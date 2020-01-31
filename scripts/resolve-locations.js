@@ -94,8 +94,7 @@ function fetchNamesLocation(names) {
   });
 }
 
-async function resolveLocations() {
-  const unresolvedNames = getUnresolvedNamesInAreaStat(getLatestAreaStat());
+async function recordNamesLocation(unresolvedNames) {
   if (unresolvedNames.length) {
     console.log(unresolvedNames.length, 'names to fetch');
 
@@ -108,6 +107,24 @@ async function resolveLocations() {
   } else {
     console.log('all names are resolved');
   }
+}
+
+async function resolveLocations() {
+  const unresolvedNames = getUnresolvedNamesInAreaStat(getLatestAreaStat());
+  await recordNamesLocation(unresolvedNames);
+}
+
+async function _resolveCSVLocations() {
+  const [head, ...lines] = fs.readFileSync('public/before0124.csv').toString().split('\n');
+  const nameMap = {};
+  lines.forEach(line => {
+    const row = line.split(',');
+    nameMap[row[3]] = 1;
+  });
+
+  const names = Object.keys(nameMap).filter(name => !LocDoc[name]);
+
+  await recordNamesLocation(names);
 }
 
 module.exports = resolveLocations;
