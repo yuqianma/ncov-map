@@ -1,16 +1,10 @@
+import { locateName } from '../util';
+
 const MergeNameMap = {
   '北京市': 1,
   '上海市': 1,
   '天津市': 1
 };
-
-function locateName(name) {
-  if (!LocDoc[name]) {
-    console.error(name);
-    return [];
-  }
-  return LocDoc[name].location;
-}
 
 export function processAreaStat(areaStat) {
   const points = [];

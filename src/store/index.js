@@ -1,71 +1,70 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { evalJsVar } from '../util';
+import { evalJsVar, getTimeFromAreaStatFileName } from '../util';
+import { LatestTime, DateRange } from '../constants';
 import { processAreaStat } from './processAreaStat';
+import { formerData } from './processFormerData';
 
 Vue.use(Vuex);
 
-const AreaStatIndex = window.AreaStatIndex;
-
-function getTimeFromAreaStatFileName(filename) {
-  return +filename.replace(/[^\d]/g, '');
+function fetchAllAreaStat() {
+  return Promise.all(
+    AreaStatIndex.map(filename => {
+      return fetch(`dxy/${filename}`).then(res => res.text()).then(text => {
+        const v = evalJsVar(text);
+        v.time = getTimeFromAreaStatFileName(filename);
+        return Object.freeze(v);
+      });
+    })
+  );
 }
 
-const LatestTime = getTimeFromAreaStatFileName(AreaStatIndex[AreaStatIndex.length - 1]);
+const SEPARATE_DATE = new Date('2020-01-24');
 
 const store = new Vuex.Store({
   state: {
-    cityPoints: [],
+    areaStats: [],
     pickedIdx: -1,
-    dataTime: null,
+    dataTime: LatestTime,
+    loaded: false,
   },
   getters: {
-    visiblePoints({ cityPoints }) {
-      return cityPoints;
+    visiblePoints({ areaStats, dataTime }) {
+      if (dataTime === LatestTime) {
+        // areaStats
+        return processAreaStat(window.getAreaStat);
+      } else if (dataTime > SEPARATE_DATE) {
+        let idx = areaStats.findIndex(a => a.time > +dataTime);
+        idx = Math.max(0, Math.min(idx - 1, areaStats.length));
+        return processAreaStat(areaStats[idx]);
+      } else {
+        return formerData.getVisiblePointsByDate(dataTime);
+      } 
     }
   },
   mutations: {
-    updateCityPoints: (s, areaStat) => {
-      try {
-        s.cityPoints = processAreaStat(areaStat);
-      } catch (e) {
-        console.log(areaStat);
-      }
-      s.dataTime = areaStat.time;
+    setDataTime: (s, _) => {
+      s.dataTime = _;
     },
-    setPickedIdx: (s, _) => (s.pickedIdx = _),
+    saveAllData: (s, areaStats) => {
+      s.areaStats = areaStats;
+      s.loaded = true;
+    },
+    setPickedIdx: (s, _) => s.pickedIdx = _,
   },
   actions: {
-    fetchAllAreaStat({ commit }) {
-      Promise.all(
-        AreaStatIndex.map(filename => {
-          return fetch(`dxy/${filename}`).then(res => res.text()).then(text => {
-            const v = evalJsVar(text);
-            v.time = getTimeFromAreaStatFileName(filename);
-            return v;
-          });
-        })
-      ).then(res => {
-        res.forEach((d, i) => {
-          // const time = dayjs(d.time).format('YYYY-MM-DD HH:mm');
-          // const num = d.reduce((n, p) => n + p.confirmedCount, 0);
-          // console.log(time, num);
-
-          setTimeout(() => {
-            commit('updateCityPoints', d);
-          }, 100 * i);
-        });
+    async fetchAllData({ commit }) {
+      console.time('load');
+      await formerData.load();
+      await fetchAllAreaStat().then(values => {
+        commit('saveAllData', values);
+        commit('setDataTime', DateRange[0]);
       });
+      console.timeEnd('load');
     }
   },
   modules: {
   }
 });
-
-(() => {
-  const d = window.getAreaStat;
-  d.time = LatestTime;
-  store.commit('updateCityPoints', d);
-})();
 
 export default store;
