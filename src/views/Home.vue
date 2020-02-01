@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: center;
   bottom: 0;
-  padding: 40px 5px;
+  padding: 40px 20px;
   width: 100%;
   height: 150px;
   background: #fff;

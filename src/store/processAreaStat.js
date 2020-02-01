@@ -1,9 +1,12 @@
 import { locateName } from '../util';
 
+// We can merge districts to get a right heatmap, 
+// but it is misleading for some places like Chongqing.
+// As a result, the normal heatmap may not be a good choice here.
 const MergeNameMap = {
-  '北京市': 1,
-  '上海市': 1,
-  '天津市': 1
+  // '北京市': 1,
+  // '上海市': 1,
+  // '天津市': 1
 };
 
 export function processAreaStat(areaStat) {
@@ -19,7 +22,6 @@ export function processAreaStat(areaStat) {
   areaStat.forEach(area => {
     const { provinceName } = area;
 
-    // merged Beijing & Shanghai seems better...
     if (!MergeNameMap[provinceName] && area.cities.length) {
       // city level, use `province+city`
       area.cities.forEach(city => {
@@ -29,11 +31,6 @@ export function processAreaStat(areaStat) {
       // no city data or it is a city, use province level
       putPoint(locateName(provinceName), area);
     }
-  });
-
-  const maxLog = Math.log(max);
-  points.forEach(point => {
-    point[2] = Math.max(1e-6, Math.log(point[2]) / maxLog);
   });
 
   Object.freeze(points);

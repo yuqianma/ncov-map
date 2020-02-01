@@ -67,4 +67,8 @@ const store = new Vuex.Store({
   }
 });
 
+// store.dispatch('fetchAllData').then(() => {
+//   store.commit('setDataTime', +new Date('2020-01-24'));
+// });
+
 export default store;
