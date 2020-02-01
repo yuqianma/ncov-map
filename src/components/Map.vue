@@ -198,12 +198,12 @@ export default {
                       ['zoom'],
                       7,
                       ['interpolate', ['linear'], ['get', 'num'],
-                        1, 1,
-                        100, 4
+                        1, 2,
+                        100, 10
                       ],
                       10,
                       ['interpolate', ['linear'], ['get', 'num'],
-                        1, 5,
+                        1, 10,
                         100, 50
                       ]
                     ],
@@ -254,38 +254,12 @@ export default {
         const { x, y } = containerPoint;
         const features = glmap.queryRenderedFeatures([x, y]);
 
-        console.log(features);
-
         if (features[0]) {
-          console.log(this.visiblePoints[features[0].properties.idx]);
+          this.$store.commit('setPickedIdx', features[0].properties.idx);
         }
       });
 
     },
-    appendEventCircles(points) {
-      let lastTarget = null;
-      const pick = (e) => {
-        lastTarget && lastTarget.updateSymbol({
-          lineWidth: 0
-        });
-        e.target.updateSymbol({
-          lineWidth: 2
-        });
-        lastTarget = e.target;
-        this.$store.commit('setPickedIdx', e.target.options.idx);
-      }
-      this.eventLayer.addGeometry(points.map((p, i) => {
-        const circle = new maptalks.Circle([p[0], p[1]], DISTANCE, {
-            idx: i,
-            symbol: {
-              lineWidth: 0,
-              // opacity: 0
-            }
-        });
-        circle.on('click', pick);
-        return circle;
-      }));
-    }
   }
 }
 </script>

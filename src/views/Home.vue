@@ -1,11 +1,16 @@
 <template>
   <div class="home">
-    <div class="info info-time">{{formattedTime}}</div>
     <div class="info info-point">{{pointInfo}}</div>
     <div class="pane">
+      <div class="time">{{formattedDataTime}}</div>
       <Spinner v-if="loading" />
       <div v-if="!loaded && !loading" class="load" v-on:click="load">加载全部数据</div>
       <input v-if="loaded" type="range" :min="dateMin" :max="dateMax" v-model="dataTime" />
+      <div class="range">
+        {{formattedDateMin}}
+        ~
+        {{formattedDateMax}}
+      </div>
     </div>
   </div>
 </template>
@@ -14,23 +19,25 @@
 .info {
   position: fixed;
 }
-.info-point {
-  top: 2em;
-}
 
 .pane {
   box-sizing: border-box;
   position: fixed;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   bottom: 0;
-  padding: 40px 20px;
+  padding: 10px 20px;
   width: 100%;
   height: 150px;
   background: #fff;
   border-radius: 20px 20px 0 0;
   box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.pane .time {
+  padding: 10px;
 }
 
 .pane input[type="range"] {
@@ -63,6 +70,12 @@ export default {
   }),
   computed: {
     ...mapState(['loaded']),
+    formattedDateMin() {
+      return dayjs(this.dateMin).format('MM-DD');
+    },
+    formattedDateMax() {
+      return dayjs(this.dateMax).format('MM-DD');
+    },
     dataTime: {
       get () {
         return +this.$store.state.dataTime;
@@ -71,7 +84,7 @@ export default {
         this.$store.commit('setDataTime', +v);
       }
     },
-    formattedTime() {
+    formattedDataTime() {
       return dayjs(this.$store.state.dataTime).format('YYYY-MM-DD HH:mm');
     },
     pointInfo() {
@@ -79,9 +92,12 @@ export default {
       if (!point) {
         return '';
       }
-      const data = point[3];
-      console.log(data);
-      return `${data.cityName || data.provinceName}: ${data.confirmedCount}`;
+      let data = point[3];
+      if (data.length) {
+        data = data[0];
+        return `${data.loc.city}: ${point[2]}`;
+      }
+      return `${data.cityName || data.provinceName}: ${point[2]}`;
     }
   },
   methods: {
