@@ -5198,5 +5198,9 @@ window.LocDoc={
       102.911027,
       34.983385
     ]
+  },
+  "待明确地区": {
+    "invalid": true,
+    "location": []
   }
 };
