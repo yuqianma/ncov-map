@@ -1,4 +1,6 @@
 module.exports = {
-  publicPath: '',
+  publicPath: process.env.NODE_ENV === 'production'
+    ? 'https://cdn.jsdelivr.net/gh/yuqianma/ncov-map@gh-pages/'
+    : '',
   productionSourceMap: false,
 }

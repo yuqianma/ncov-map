@@ -10,7 +10,7 @@ Vue.use(Vuex);
 function fetchAllAreaStat() {
   return Promise.all(
     AreaStatIndex.map(filename => {
-      return fetch(`dxy/${filename}`).then(res => res.text()).then(text => {
+      return fetch(`${process.env.BASE_URL}dxy/${filename}`).then(res => res.text()).then(text => {
         const v = evalJsVar(text);
         v.time = getTimeFromAreaStatFileName(filename);
         return Object.freeze(v);

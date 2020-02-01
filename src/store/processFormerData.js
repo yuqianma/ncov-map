@@ -5,9 +5,12 @@ class FormerData {
   }
 
   async load() {
-    const data = await d3.csv('before0124.csv', (d) => {
+    const data = await d3.csv(`${process.env.BASE_URL}before0124.csv`, (d) => {
       const area = d['地区'];
       const loc = LocDoc[area];
+      if (!loc) {
+        throw area;
+      }
       // if (!loc.city) {
       //   console.log(area, loc);
       // }

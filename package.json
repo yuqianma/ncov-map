@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build && node scripts/replace-resource-url.js",
     "monit": "node -p \"!!require('crawler')\" || npm install crawler && node scripts/monit.js"
   },
   "dependencies": {
