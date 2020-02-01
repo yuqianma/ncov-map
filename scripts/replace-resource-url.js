@@ -16,9 +16,15 @@ function getMD5(filepath) {
 }
 
 function replaceResourceURL() {
+  const hashedLocDocPath = `location-document.${getMD5(LOC_DOC_PATH)}.js`;
+  const hashedAreaStatIndexPath = `area-stat-index.${getMD5(AREA_STAT_INDEX_PATH)}.js`;
+
+  fs.renameSync(LOC_DOC_PATH, path.join(DIST_DIR, hashedLocDocPath));
+  fs.renameSync(AREA_STAT_INDEX_PATH, path.join(DIST_DIR, hashedAreaStatIndexPath));
+
   const htmlStr = fs.readFileSync(HTML_PATH).toString();
-  let updatedHtmlStr = htmlStr.replace(/location-document\.js/, `location-document.js?hash=${getMD5(LOC_DOC_PATH)}`);
-  updatedHtmlStr = updatedHtmlStr.replace(/area-stat-index\.js/, `area-stat-index.js?hash=${getMD5(AREA_STAT_INDEX_PATH)}`);
+  let updatedHtmlStr = htmlStr.replace(/location-document\.js/, hashedLocDocPath);
+  updatedHtmlStr = updatedHtmlStr.replace(/area-stat-index\.js/, hashedAreaStatIndexPath);
 
   fs.writeFileSync(HTML_PATH, updatedHtmlStr);
   console.log(`hash updated`);
