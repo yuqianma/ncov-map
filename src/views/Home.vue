@@ -1,6 +1,7 @@
 <template>
   <div class="home">
-    <div class="info info-point">{{pointInfo}}</div>
+    <div class="title">确诊数量</div>
+    <div class="point-info">{{pointInfo}}</div>
     <div class="pane">
       <div class="time">{{formattedDataTime}}</div>
       <Spinner v-if="loading" />
@@ -16,8 +17,20 @@
 </template>
 
 <style scoped>
-.info {
+.title {
   position: fixed;
+  top: 5px;
+  right: 0;
+  padding: 5px;
+  background: #2c3e50;
+  color: #ccc;
+  border-radius: 5px 0 0 5px;
+}
+
+.point-info {
+  position: fixed;
+  padding: 5px;
+  font-weight: bolder;
 }
 
 .pane {
@@ -92,12 +105,7 @@ export default {
       if (!point) {
         return '';
       }
-      let data = point[3];
-      if (data.length) {
-        data = data[0];
-        return `${data.loc.city}: ${point[2]}`;
-      }
-      return `${data.cityName || data.provinceName}: ${point[2]}`;
+      return `${point.areaName}: ${point.confirmedCount}`;
     }
   },
   methods: {

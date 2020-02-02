@@ -21,6 +21,8 @@ function fetchAllAreaStat() {
 
 const SEPARATE_DATE = new Date('2020-01-24');
 
+let fetched = false;
+
 const store = new Vuex.Store({
   state: {
     areaStats: [],
@@ -54,11 +56,15 @@ const store = new Vuex.Store({
   },
   actions: {
     async fetchAllData({ commit }) {
+      if (fetched) {
+        return;
+      }
+      fetched = true;
       console.time('load');
       await formerData.load();
       await fetchAllAreaStat().then(values => {
         commit('saveAllData', values);
-        commit('setDataTime', DateRange[0]);
+        // commit('setDataTime', DateRange[0]);
       });
       console.timeEnd('load');
     }
@@ -67,8 +73,10 @@ const store = new Vuex.Store({
   }
 });
 
-// store.dispatch('fetchAllData').then(() => {
-//   store.commit('setDataTime', +new Date('2020-01-24'));
-// });
+if (navigator.userAgent.indexOf('NetType/WIFI') !== -1) {
+  setTimeout(() => {    
+    store.dispatch('fetchAllData');
+  }, 500);
+}
 
 export default store;

@@ -41,9 +41,14 @@ class FormerData {
     data.forEach(d => {
       const location = d.loc.location;
       const lngLat = location.join(',');
-      const p = lngLatMap[lngLat] = lngLatMap[lngLat] || [location[0], location[1], 0, []];
-      p[2] += +d.confirmedCount;
-      p[3].push(d);
+      const p = lngLatMap[lngLat] = lngLatMap[lngLat] || {
+        coordinates: location,
+        confirmedCount: 0,
+        areaName: d.loc.province + d.loc.city,
+        data: [d],
+      };
+      p.confirmedCount += +d.confirmedCount;
+      p.data.push(d);
     });
 
     return Object.values(lngLatMap);

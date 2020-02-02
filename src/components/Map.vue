@@ -1,14 +1,22 @@
 <template>
-  <div ref="container"></div>
+  <div id="map-container" ref="container" :class="{ 'show-label': showLabel }"></div>
 </template>
 
-<style scoped>
-div {
+<style>
+#map-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+#map-container .mapboxgl-marker {
+  display: none;
+}
+
+#map-container.show-label .mapboxgl-marker {
+  display: initial;
 }
 </style>
 
@@ -25,6 +33,9 @@ const DISTANCE = 50e3;
 
 export default {
   name: 'Map',
+  data: () => ({
+    showLabel: false,
+  }),
   mounted () {
     this.mapbox();
   },
@@ -45,12 +56,13 @@ export default {
           return {
             type: 'Feature',
             properties: {
-              num: p[2],
-              idx: i,
+              count: p.confirmedCount,
+              areaName: p.areaName,
+              idx: i
             },
             geometry: {
               type: 'Point',
-              coordinates: [p[0], p[1]]
+              coordinates: p.coordinates
             }
           }
         })
@@ -63,8 +75,13 @@ export default {
         zoom: 3,
         minZoom: 3,
         maxZoom: 10,
+        touchRotate: false,
+        touchPitch: false,
         zoomControl: {
-          'position'  : 'top-right',
+          'position'  : {
+            bottom: 170,
+            right: 20
+          },
           'slider'    : false,
           'zoomLevel' : false
         },
@@ -116,16 +133,16 @@ export default {
                 'id': 'ncov-heat',
                 'type': 'heatmap',
                 'source': 'points',
-                'maxzoom': 9,
+                'maxzoom': 6,
                 'paint': {
-                  // Increase the heatmap weight based on property num
+                  // Increase the heatmap weight based on property count
                   'heatmap-weight': [
                     'interpolate',
                     ['linear'],
-                    ['get', 'num'],
-                    // num is 0 (or less) -> 0
+                    ['get', 'count'],
+                    // count is 0 (or less) -> 0
                     1, 0.1,
-                    // num is 100 (or greater) -> 1
+                    // count is 100 (or greater) -> 1
                     100, 1
                   ],
                   // Increase the heatmap color weight weight by zoom level
@@ -135,7 +152,7 @@ export default {
                     ['linear'],
                     ['zoom'],
                     0, 1,
-                    9, 3
+                    6, 3
                   ],
                   // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
                   // Begin color ramp at 0-stop with a 0-transparancy color
@@ -163,15 +180,15 @@ export default {
                     ['linear'],
                     ['zoom'],
                     1, 2,
-                    9, 30
+                    6, 20
                   ],
                   // Transition from heatmap to circle layer by zoom level
                   'heatmap-opacity': [
                     'interpolate',
                     ['linear'],
                     ['zoom'],
-                    7, 1,
-                    9, 0
+                    4, 1,
+                    6, 0
                   ]
                 }
             }]
@@ -196,13 +213,13 @@ export default {
                       'interpolate',
                       ['linear'],
                       ['zoom'],
-                      7,
-                      ['interpolate', ['linear'], ['get', 'num'],
+                      4,
+                      ['interpolate', ['linear'], ['get', 'count'],
                         1, 2,
                         100, 10
                       ],
-                      10,
-                      ['interpolate', ['linear'], ['get', 'num'],
+                      8,
+                      ['interpolate', ['linear'], ['get', 'count'],
                         1, 10,
                         100, 50
                       ]
@@ -211,7 +228,7 @@ export default {
                     'circle-color': [
                       'interpolate',
                       ['linear'],
-                      ['get', 'num'],
+                      ['get', 'count'],
                       1,
                       'rgba(33,102,172,0)',
                       10,
@@ -230,8 +247,8 @@ export default {
                       'interpolate',
                       ['linear'],
                       ['zoom'],
-                      7, 0,
-                      8, 1
+                      4, 0,
+                      6, 1
                     ],
                     'circle-stroke-width': 1,
                     'circle-stroke-color': 'black',
@@ -239,14 +256,70 @@ export default {
                       'interpolate',
                       ['linear'],
                       ['zoom'],
-                      7, 0,
-                      8, 1
+                      4, 0,
+                      6, 1
                     ]
                 }
             }
         );
 
-        // glmap.setLayoutProperty('ncov-point', 'visibility', 'none');
+        function createLabel(props) {
+          var el = document.createElement('div');
+          el.innerHTML = `${props.count}`;
+          return el;
+        }
+
+        // objects for caching and keeping track of HTML marker objects (for performance)
+        var markers = {};
+        var markersOnScreen = {};
+
+        function updateMarkers(e) {
+          if (glmap.getZoom() > 6) {
+            showLabel();
+          } else {
+            hideLabel();
+          }
+          
+          var newMarkers = {};
+          var features = glmap.querySourceFeatures('points');
+
+          // for every feature on the screen, create an HTML marker for it (if we didn't yet),
+          // and add it to the map if it's not there already
+          for (var i = 0; i < features.length; i++) {
+            var coords = features[i].geometry.coordinates;
+            var props = features[i].properties;
+            var id = props.areaName;
+
+            var marker = markers[id];
+            if (!marker) {
+              var el = createLabel(props);
+              marker = markers[id] = new mapboxgl.Marker({
+                  element: el
+              }).setLngLat(coords);
+            }
+            newMarkers[id] = marker;
+
+            if (!markersOnScreen[id]) marker.addTo(glmap);
+          }
+          // for every marker we've added previously, remove those that are no longer visible
+          for (id in markersOnScreen) {
+            if (!newMarkers[id]) markersOnScreen[id].remove();
+          }
+          markersOnScreen = newMarkers;
+        }
+
+        const hideLabel = () => this.showLabel = false;
+
+        const showLabel = () => this.showLabel = true;
+
+        // after the GeoJSON data is loaded, update markers on the screen and do so on every map move/moveend
+        // glmap.on('data', function(e) {
+        //     if (e.sourceId !== 'points' || !e.isSourceLoaded) return;
+
+        //     // glmap.on('move', hideLabel);
+        //     glmap.on('moveend', updateMarkers);
+        //     updateMarkers(e);
+        // });
       });
 
       map.on('click', (e) => {
@@ -256,6 +329,8 @@ export default {
 
         if (features[0]) {
           this.$store.commit('setPickedIdx', features[0].properties.idx);
+        } else {
+          this.$store.commit('setPickedIdx', -1);
         }
       });
 

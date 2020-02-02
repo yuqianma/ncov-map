@@ -13,23 +13,33 @@ export function processAreaStat(areaStat) {
   const points = [];
   let max = 0;
 
-  function putPoint(location, data) {
-    const point = [location[0], location[1], data.confirmedCount, data];
+  function putPoint(areaName, data) {
+    if (!data.confirmedCount) {
+      return;
+    }
+    const location = locateName(areaName);
+    data.areaName = areaName;
+    const point = {
+      coordinates: location,
+      confirmedCount: data.confirmedCount,
+      areaName,
+      data,
+    };
     points.push(point);
-    max = Math.max(max, point[2]);
+    max = Math.max(max, data.confirmedCount);
   }
 
   areaStat.forEach(area => {
     const { provinceName } = area;
 
-    if (!MergeNameMap[provinceName] && area.cities.length) {
+    if (area.cities.length) {
       // city level, use `province+city`
       area.cities.forEach(city => {
-        putPoint(locateName(provinceName + city.cityName), city);
+        putPoint(provinceName + city.cityName, city);
       });
     } else {
       // no city data or it is a city, use province level
-      putPoint(locateName(provinceName), area);
+      putPoint(provinceName, area);
     }
   });
 

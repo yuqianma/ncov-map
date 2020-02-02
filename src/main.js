@@ -11,4 +11,7 @@ const vm = new Vue({
   render: h => h(App)
 }).$mount('#app');
 
-window.vm = vm;
+if (process.env.NODE_ENV === 'development') {
+  window.vm = vm;
+  document.querySelector('title').textContent += ' DEV';
+}
