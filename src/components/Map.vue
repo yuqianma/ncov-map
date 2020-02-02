@@ -21,15 +21,9 @@
 </style>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 const DISTANCE = 50e3;
-
-// const DXYColorMap = [
-//   [       0,          9,        99,       499,      999,      1000],
-//   ["#ffffff", "#fca589", "#fb7f60", "#f6573f", "#e13128", "#c1181b"]
-// ];
-// const DXYGradient = ColorMap[0].reduce((o, v, i) => { o[v / 1000] = ColorMap[1][i]; return o; }, {})
 
 export default {
   name: 'Map',
@@ -40,12 +34,46 @@ export default {
     this.mapbox();
   },
   computed: {
+    ...mapState(['mapType']),
     ...mapGetters(['visiblePoints'])
   },
   watch: {
     visiblePoints(points) {
       const data = this.pointsToGeoJSON(points);
       this.mapboxglLayer.getGlMap().getSource('points').setData(data);
+    },
+    mapType(type) {
+      if (type === 'heatmap') {
+        glmap.setLayoutProperty('ncov-heat', 'visibility', 'visible');
+        glmap.setPaintProperty(
+          'ncov-point',
+          'circle-opacity',
+          [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            4, 0,
+            6, 1
+          ]
+        );
+
+        glmap.setPaintProperty(
+          'ncov-point',
+          'circle-stroke-opacity',
+          [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            4, 0,
+            6, 1
+          ]
+        );
+
+      } else {
+        glmap.setLayoutProperty('ncov-heat', 'visibility', 'none');
+        glmap.setPaintProperty('ncov-point', 'circle-opacity', 1);
+        glmap.setPaintProperty('ncov-point', 'circle-stroke-opacity', 1);
+      }
     }
   },
   methods: {
@@ -216,12 +244,12 @@ export default {
                 4,
                 ['interpolate', ['linear'], ['get', 'count'],
                   1, 2,
-                  500, 10
+                  1000, 20
                 ],
-                8,
+                10,
                 ['interpolate', ['linear'], ['get', 'count'],
-                  1, 10,
-                  500, 100
+                  1, 5,
+                  1000, 100
                 ]
               ],
               // Color circle by earthquake magnitude

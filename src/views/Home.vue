@@ -5,12 +5,17 @@
     <div class="pane">
       <div class="time">{{formattedDataTime}}</div>
       <Spinner v-if="loading" />
-      <div v-if="!loaded && !loading" class="load" v-on:click="load">加载全部数据</div>
+      <div v-if="!loaded && !loading" class="load" v-on:click="load">
+        查看 {{formattedDateMin}}~{{formattedDateMax}} 数据
+      </div>
       <input v-if="loaded" type="range" :min="dateMin" :max="dateMax" v-model="dataTime" />
-      <div class="range">
+      <div v-if='loaded' class="range">
         {{formattedDateMin}}
         ~
         {{formattedDateMax}}
+      </div>
+      <div class="control">
+        <button v-on:click="toggleMapType">{{mapType}}</button>
       </div>
     </div>
   </div>
@@ -82,7 +87,7 @@ export default {
     loading: false,
   }),
   computed: {
-    ...mapState(['loaded']),
+    ...mapState(['mapType', 'loaded']),
     formattedDateMin() {
       return dayjs(this.dateMin).format('MM-DD');
     },
@@ -113,6 +118,13 @@ export default {
       this.loading = true;
       await this.$store.dispatch('fetchAllData');
       this.loading = false;
+    },
+    toggleMapType() {
+      if (this.mapType === 'heatmap') {
+        this.$store.commit('setMapType', 'circle');
+      } else {
+        this.$store.commit('setMapType', 'heatmap');
+      }
     }
   }
 }

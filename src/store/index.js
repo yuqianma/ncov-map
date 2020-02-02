@@ -25,6 +25,7 @@ let fetched = false;
 
 const store = new Vuex.Store({
   state: {
+    mapType: 'heatmap',
     areaStats: [],
     pickedIdx: -1,
     dataTime: LatestTime,
@@ -53,6 +54,7 @@ const store = new Vuex.Store({
       s.loaded = true;
     },
     setPickedIdx: (s, _) => s.pickedIdx = _,
+    setMapType: (s, _) => s.mapType = _,
   },
   actions: {
     async fetchAllData({ commit }) {
@@ -64,7 +66,7 @@ const store = new Vuex.Store({
       await formerData.load();
       await fetchAllAreaStat().then(values => {
         commit('saveAllData', values);
-        // commit('setDataTime', DateRange[0]);
+        commit('setDataTime', DateRange[0]);
       });
       console.timeEnd('load');
     }
@@ -72,11 +74,5 @@ const store = new Vuex.Store({
   modules: {
   }
 });
-
-if (navigator.userAgent.indexOf('NetType/WIFI') !== -1) {
-  setTimeout(() => {    
-    store.dispatch('fetchAllData');
-  }, 500);
-}
 
 export default store;
