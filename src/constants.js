@@ -10,3 +10,5 @@ export const DateRange = [
   new Date('2020-01-15'),
   new Date(LatestTime),
 ];
+
+export const SeparateDate = new Date('2020-01-24');

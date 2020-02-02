@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { evalJsVar, getTimeFromAreaStatFileName } from '../util';
-import { LatestTime, DateRange } from '../constants';
+import { LatestTime, SeparateDate } from '../constants';
 import { processAreaStat } from './processAreaStat';
 import { formerData } from './processFormerData';
+import { aggregateData } from './aggregateData';
 
 Vue.use(Vuex);
 
@@ -18,8 +19,6 @@ function fetchAllAreaStat() {
     })
   );
 }
-
-const SEPARATE_DATE = new Date('2020-01-24');
 
 let fetched = false;
 
@@ -36,13 +35,16 @@ const store = new Vuex.Store({
       if (dataTime === LatestTime) {
         // areaStats
         return processAreaStat(window.getAreaStat);
-      } else if (dataTime > SEPARATE_DATE) {
+      } else if (dataTime > SeparateDate) {
         let idx = areaStats.findIndex(a => a.time > +dataTime);
         idx = Math.max(0, Math.min(idx - 1, areaStats.length));
         return processAreaStat(areaStats[idx]);
       } else {
         return formerData.getVisiblePointsByDate(dataTime);
       } 
+    },
+    timeSeriesData({ areaStats }) {
+      return aggregateData({ formerData, areaStats });
     }
   },
   mutations: {
@@ -74,5 +76,7 @@ const store = new Vuex.Store({
   modules: {
   }
 });
+
+process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData');
 
 export default store;
