@@ -202,65 +202,65 @@ export default {
 
       glmap.on('load', () => {
         glmap.addLayer(
-            {
-                'id': 'ncov-point',
-                'type': 'circle',
-                'source': 'points',
-                // 'minzoom': 7,
-                'paint': {
-                    // Size circle radius by earthquake magnitude and zoom level
-                    'circle-radius': [
-                      'interpolate',
-                      ['linear'],
-                      ['zoom'],
-                      4,
-                      ['interpolate', ['linear'], ['get', 'count'],
-                        1, 2,
-                        100, 10
-                      ],
-                      8,
-                      ['interpolate', ['linear'], ['get', 'count'],
-                        1, 10,
-                        100, 50
-                      ]
-                    ],
-                    // Color circle by earthquake magnitude
-                    'circle-color': [
-                      'interpolate',
-                      ['linear'],
-                      ['get', 'count'],
-                      1,
-                      'rgba(33,102,172,0)',
-                      10,
-                      'rgb(103,169,207)',
-                      50,
-                      'rgb(209,229,240)',
-                      100,
-                      'rgb(253,219,199)',
-                      500,
-                      'rgb(239,138,98)',
-                      1000,
-                      'rgb(178,24,43)'
-                    ],
-                    // Transition from heatmap to circle layer by zoom level
-                    'circle-opacity': [
-                      'interpolate',
-                      ['linear'],
-                      ['zoom'],
-                      4, 0,
-                      6, 1
-                    ],
-                    'circle-stroke-width': 1,
-                    'circle-stroke-color': 'black',
-                    'circle-stroke-opacity': [
-                      'interpolate',
-                      ['linear'],
-                      ['zoom'],
-                      4, 0,
-                      6, 1
-                    ]
-                }
+          {
+            'id': 'ncov-point',
+            'type': 'circle',
+            'source': 'points',
+            // 'minzoom': 7,
+            'paint': {
+              // Size circle radius by earthquake magnitude and zoom level
+              'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4,
+                ['interpolate', ['linear'], ['get', 'count'],
+                  1, 2,
+                  500, 10
+                ],
+                8,
+                ['interpolate', ['linear'], ['get', 'count'],
+                  1, 10,
+                  500, 100
+                ]
+              ],
+              // Color circle by earthquake magnitude
+              'circle-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'count'],
+                1,
+                'rgba(33,102,172,0)',
+                10,
+                'rgb(103,169,207)',
+                50,
+                'rgb(209,229,240)',
+                100,
+                'rgb(253,219,199)',
+                500,
+                'rgb(239,138,98)',
+                1000,
+                'rgb(178,24,43)'
+              ],
+              // Transition from heatmap to circle layer by zoom level
+              'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4, 0,
+                6, 1
+              ],
+              'circle-stroke-width': 0.1,
+              'circle-stroke-color': '#888',
+              'circle-stroke-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4, 0,
+                6, 1
+              ]
             }
+          }
         );
 
         function createLabel(props) {
