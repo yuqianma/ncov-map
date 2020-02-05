@@ -351,5 +351,6 @@ window.AreaStatIndex=[
   "getAreaStat.1580897022044.js",
   "getAreaStat.1580898824809.js",
   "getAreaStat.1580900626357.js",
-  "getAreaStat.1580902428838.js"
+  "getAreaStat.1580902428838.js",
+  "getAreaStat.1580904268315.js"
 ];
