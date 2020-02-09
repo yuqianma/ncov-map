@@ -77,8 +77,8 @@ const store = new Vuex.Store({
   }
 });
 
-process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData').then(() => {
-  console.log(store.getters.timeSeriesData);
-});
+// process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData').then(() => {
+//   console.log(store.getters.timeSeriesData);
+// });
 
 export default store;
