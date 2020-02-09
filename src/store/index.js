@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { evalJsVar, getTimeFromAreaStatFileName } from '../util';
-import { LatestTime, SeparateDate } from '../constants';
+import { LatestTime, SeparateDate, DateRange } from '../constants';
 import { processAreaStat } from './processAreaStat';
 import { formerData } from './processFormerData';
 import { aggregateData } from './aggregateData';
@@ -77,6 +77,8 @@ const store = new Vuex.Store({
   }
 });
 
-process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData');
+process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData').then(() => {
+  console.log(store.getters.timeSeriesData);
+});
 
 export default store;

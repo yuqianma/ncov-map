@@ -18,7 +18,7 @@ class FormerData {
       //   console.log(area, loc);
       // }
       return {
-        confirmedCount: d['病例数'],
+        confirmedCount: +d['病例数'],
         date: new Date(d['发病日期']),
         areaName: d['地区'],
         loc,

@@ -6,10 +6,26 @@ function aggregateFormer(formerData) {
   let date = dayjs(DateRange[0]);
   while(date < SeparateDate) {
     const data = formerData.queryPointsByDate(date);
-    const agg = { date: +date, confirmedCount: 0 };
+    const agg = {
+      date: +date,
+      confirmedCount: 0,
+      provinces: [],
+    };
+
+    const provinceMap = {};
 
     data.forEach(d => {
-      agg.confirmedCount += +d.confirmedCount;
+      provinceMap[d.loc.province] = provinceMap[d.loc.province] || 0;
+      provinceMap[d.loc.province] += d.confirmedCount;
+      
+      agg.confirmedCount += d.confirmedCount;
+    });
+
+    agg.provinces = Object.keys(provinceMap).map(provinceName => {
+      return {
+        provinceName,
+        confirmedCount: provinceMap[provinceName]
+      }
     });
 
     aggregated.push(agg);
@@ -24,7 +40,11 @@ function aggregateAreaStats(areaStats) {
   const aggregated = [];
 
   areaStats.forEach(areaStat => {
-    const agg = { date: areaStat.time, confirmedCount: 0 };
+    const agg = {
+      date: areaStat.time,
+      confirmedCount: 0,
+      provinces: areaStat,
+    };
     areaStat.forEach(area => {
       agg.confirmedCount += area.confirmedCount;
     });
