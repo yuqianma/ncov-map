@@ -24,7 +24,7 @@ let fetched = false;
 
 const store = new Vuex.Store({
   state: {
-    mapType: 'heatmap',
+    mapType: 'circle',
     areaStats: [],
     pickedIdx: -1,
     dataTime: LatestTime,

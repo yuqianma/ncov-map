@@ -39,45 +39,28 @@ export default {
   },
   watch: {
     visiblePoints(points) {
-      const data = this.pointsToGeoJSON(points);
-      this.mapboxglLayer.getGlMap().getSource('points').setData(data);
+      this.map.getSource('points').setData(this.dataToPointFeature(points));
+      this.map.getSource('polygons').setData(this.dataToPolygonFeature(points));
     },
     mapType(type) {
-      if (type === 'heatmap') {
-        glmap.setLayoutProperty('ncov-heat', 'visibility', 'visible');
-        glmap.setPaintProperty(
-          'ncov-point',
-          'circle-opacity',
-          [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            4, 0,
-            6, 1
-          ]
-        );
-
-        glmap.setPaintProperty(
-          'ncov-point',
-          'circle-stroke-opacity',
-          [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            4, 0,
-            6, 1
-          ]
-        );
-
+      const map = this.map;
+      if (type === 'circle') {
+        map.setLayoutProperty('ncov-circle', 'visibility', 'visible');
+        map.setLayoutProperty('ncov-3d', 'visibility', 'none');
+        map.easeTo({
+          pitch: 0
+        });
       } else {
-        glmap.setLayoutProperty('ncov-heat', 'visibility', 'none');
-        glmap.setPaintProperty('ncov-point', 'circle-opacity', 1);
-        glmap.setPaintProperty('ncov-point', 'circle-stroke-opacity', 1);
+        map.setLayoutProperty('ncov-3d', 'visibility', 'visible');
+        map.setLayoutProperty('ncov-circle', 'visibility', 'none');
+        map.easeTo({
+          pitch: 60
+        });
       }
     }
   },
   methods: {
-    pointsToGeoJSON(points) {
+    dataToPointFeature(points) {
       return {
         "type": "FeatureCollection",
         "features": points.map((p, i) => {
@@ -96,9 +79,39 @@ export default {
         })
       }
     },
+    dataToPolygonFeature(points) {
+      const halfSize = 0.15;
+      return {
+        "type": "FeatureCollection",
+        "features": points.map((p, i) => {
+          const [x, y] = p.coordinates;
+          return {
+            type: 'Feature',
+            properties: {
+              count: p.confirmedCount,
+              areaName: p.areaName,
+              idx: i
+            },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [x - halfSize, y + halfSize],
+                [x - halfSize, y - halfSize],
+                [x + halfSize, y - halfSize],
+                [x + halfSize, y + halfSize],
+                [x - halfSize, y + halfSize]
+              ]]
+            }
+          }
+        })
+      }
+    },
     mapbox() {
       const map = new mapboxgl.Map({
         container: this.$refs.container,
+        center: [104.299012, 34.781634], // starting position
+        zoom: 2, // starting zoom
+        antialias: true,
         style: {
           'version': 8,
           'sources': {
@@ -118,7 +131,11 @@ export default {
             },
             points: {
               type: 'geojson',
-              data: this.pointsToGeoJSON(this.visiblePoints)
+              data: this.dataToPointFeature(this.visiblePoints)
+            },
+            polygons: {
+              type: 'geojson',
+              data: this.dataToPolygonFeature(this.visiblePoints)
             }
           },
           'layers': [
@@ -139,7 +156,6 @@ export default {
               'id': 'boundaries',
               'type': 'raster',
               'source': 'raster-boundaries',
-              'minzoom': 2,
               'maxzoom': 4,
               'paint': {
                 'raster-saturation': -1,
@@ -149,16 +165,19 @@ export default {
             }
           ]
         },
-        center: [104.299012, 34.781634], // starting position
-        zoom: 2 // starting zoom
       });
 
-      map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+      window._map = map;
+      this.map = map;
+
+      map.addControl(new mapboxgl.NavigationControl({
+        visualizePitch: true
+      }), 'bottom-right');
 
       map.on('load', () => {
         map.addLayer(
           {
-            'id': 'ncov-point',
+            'id': 'ncov-circle',
             'type': 'circle',
             'source': 'points',
             // 'minzoom': 7,
@@ -217,6 +236,38 @@ export default {
             }
           }
         );
+
+        map.addLayer({
+          id: 'ncov-3d',
+          type: 'fill-extrusion',
+          source: 'polygons',
+          paint: {
+            'fill-extrusion-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'count'],
+              1,
+              'rgb(253,219,199)',
+              // 50,
+              // 'rgb(209,229,240)',
+              // 100,
+              // 'rgb(253,219,199)',
+              // 500,
+              // 'rgb(239,138,98)',
+              1000,
+              'rgb(178,24,43)'
+            ],
+            'fill-extrusion-base': 0,
+            'fill-extrusion-height': [
+              '*',
+              ['get', 'count'],
+              1e6 / 1000
+            ]
+          }
+        });
+
+        map.setLayoutProperty('ncov-3d', 'visibility', 'none');
+
       });
 
       map.on('click', (e) => {

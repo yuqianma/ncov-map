@@ -15,7 +15,8 @@
         {{formattedDateMax}}
       </div>
       <div class="control">
-        <button v-on:click="toggleMapType">{{mapType}}</button>
+        change to
+        <button v-on:click="toggleMapType">{{changeType}}</button>
       </div>
     </div>
   </div>
@@ -88,6 +89,9 @@ export default {
   }),
   computed: {
     ...mapState(['mapType', 'loaded']),
+    changeType() {
+      return this.mapType === 'circle' ? '3D' : 'circle';
+    },
     formattedDateMin() {
       return dayjs(this.dateMin).format('MM-DD');
     },
@@ -120,11 +124,7 @@ export default {
       this.loading = false;
     },
     toggleMapType() {
-      if (this.mapType === 'heatmap') {
-        this.$store.commit('setMapType', 'circle');
-      } else {
-        this.$store.commit('setMapType', 'heatmap');
-      }
+      this.$store.commit('setMapType', this.changeType);
     }
   }
 }
