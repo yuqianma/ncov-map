@@ -39,8 +39,11 @@ export default {
   },
   watch: {
     visiblePoints(points) {
-      this.map.getSource('points').setData(this.dataToPointFeature(points));
-      this.map.getSource('polygons').setData(this.dataToPolygonFeature(points));
+      if (this.mapType === 'circle') {
+        this.map.getSource('points').setData(this.dataToPointFeature(points));
+      } else {
+        this.map.getSource('polygons').setData(this.dataToPolygonFeature(points));
+      }
     },
     mapType(type) {
       const map = this.map;
