@@ -19,9 +19,14 @@ function getLatestAreaStat() {
   return evalJsVar(getLatestAreaStatStr());
 }
 
+function getTimeFromAreaStatFileName(filename) {
+  return +filename.replace(/[^\d]/g, '');
+}
+
 module.exports = {
   evalJsVar,
   getLatestJsFileName,
   getLatestAreaStatStr,
   getLatestAreaStat,
+  getTimeFromAreaStatFileName
 };
