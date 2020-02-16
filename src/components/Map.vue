@@ -48,12 +48,14 @@ export default {
     mapType(type) {
       const map = this.map;
       if (type === 'circle') {
+        map.getSource('points').setData(this.dataToPointFeature(this.visiblePoints));
         map.setLayoutProperty('ncov-circle', 'visibility', 'visible');
         map.setLayoutProperty('ncov-3d', 'visibility', 'none');
         map.easeTo({
           pitch: 0
         });
       } else {
+        map.getSource('polygons').setData(this.dataToPolygonFeature(this.visiblePoints));
         map.setLayoutProperty('ncov-3d', 'visibility', 'visible');
         map.setLayoutProperty('ncov-circle', 'visibility', 'none');
         map.easeTo({

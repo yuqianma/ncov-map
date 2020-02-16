@@ -1,13 +1,4 @@
-import { locateName } from '../util';
-
-// We can merge districts to get a right heatmap, 
-// but it is misleading for some places like Chongqing.
-// As a result, the normal heatmap may not be a good choice here.
-const MergeNameMap = {
-  // '北京市': 1,
-  // '上海市': 1,
-  // '天津市': 1
-};
+// import { locateName } from '../util';
 
 export function processAreaStat(areaStat) {
   const points = [];
@@ -17,11 +8,17 @@ export function processAreaStat(areaStat) {
     if (!data.confirmedCount) {
       return;
     }
-    const location = locateName(areaName);
+    const loc = LocDoc[areaName];
+    if (!loc) {
+      console.error('cannot find:', areaName);
+      return;
+    }
     data.areaName = areaName;
     const point = {
-      coordinates: location,
+      coordinates: loc.location,
       confirmedCount: data.confirmedCount,
+      provinceName: loc.province,
+      cityName: loc.cityName,
       areaName,
       data,
     };

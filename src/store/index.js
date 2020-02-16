@@ -4,7 +4,8 @@ import { evalJsVar, getTimeFromAreaStatFileName } from '../util';
 import { LatestTime, SeparateDate, DateRange } from '../constants';
 import { processAreaStat } from './processAreaStat';
 import { formerData } from './processFormerData';
-import { aggregateData } from './aggregateData';
+import { getIncrementalData } from './getIncrementalData';
+// import { aggregateData } from './aggregateData';
 
 Vue.use(Vuex);
 
@@ -20,15 +21,13 @@ function fetchAllAreaStat() {
   );
 }
 
-let fetched = false;
-
 const store = new Vuex.Store({
   state: {
     mapType: 'circle',
     areaStats: [],
     pickedIdx: -1,
     dataTime: LatestTime,
-    loaded: false,
+    loadState: null,
   },
   getters: {
     visiblePoints({ areaStats, dataTime }) {
@@ -43,32 +42,38 @@ const store = new Vuex.Store({
         return formerData.getVisiblePointsByDate(dataTime);
       } 
     },
-    timeSeriesData({ areaStats }) {
-      return aggregateData({ formerData, areaStats });
+    // timeSeriesData({ areaStats }) {
+    //   return aggregateData({ formerData, areaStats });
+    // },
+    incrementalData({ areaStats }) {
+      return getIncrementalData({ formerData, areaStats });
     }
   },
   mutations: {
+    setLoading: (s) => {
+      s.loadState = 'loading';
+    },
     setDataTime: (s, _) => {
       s.dataTime = _;
     },
     saveAllData: (s, areaStats) => {
       s.areaStats = areaStats;
-      s.loaded = true;
+      s.loadState = 'loaded';
     },
     setPickedIdx: (s, _) => s.pickedIdx = _,
     setMapType: (s, _) => s.mapType = _,
   },
   actions: {
-    async fetchAllData({ commit }) {
-      if (fetched) {
+    async fetchAllData({ state, commit }) {
+      if (state.loadState) {
         return;
       }
-      fetched = true;
+      commit('setLoading');
       console.time('load');
       await formerData.load();
       await fetchAllAreaStat().then(values => {
         commit('saveAllData', values);
-        commit('setDataTime', DateRange[0]);
+        // commit('setDataTime', DateRange[0]);
       });
       console.timeEnd('load');
     }
@@ -77,8 +82,8 @@ const store = new Vuex.Store({
   }
 });
 
-// process.env.NODE_ENV === 'development' && store.dispatch('fetchAllData').then(() => {
-//   console.log(store.getters.timeSeriesData);
-// });
+store.dispatch('fetchAllData').then(() => {
+  // console.log(store.getters.incrementalData);
+});
 
 export default store;

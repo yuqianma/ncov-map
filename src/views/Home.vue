@@ -5,9 +5,6 @@
     <div class="pane">
       <div class="time">{{formattedDataTime}}</div>
       <Spinner v-if="loading" />
-      <div v-if="!loaded && !loading" class="load" v-on:click="load">
-        查看 {{formattedDateMin}}~{{formattedDateMax}} 数据
-      </div>
       <input v-if="loaded" type="range" :min="dateMin" :max="dateMax" v-model="dataTime" />
       <div v-if='loaded' class="range">
         {{formattedDateMin}}
@@ -62,14 +59,6 @@
 .pane input[type="range"] {
   width: 100%;
 }
-
-.pane .load {
-  margin: 0 auto;
-  background: #0b9;
-  color: #fff;
-  padding: 10px;
-  border-radius: 10px;
-}
 </style>
 
 <script>
@@ -85,10 +74,15 @@ export default {
   data: () => ({
     dateMin: +DateRange[0],
     dateMax: +DateRange[1],
-    loading: false,
   }),
   computed: {
-    ...mapState(['mapType', 'loaded']),
+    ...mapState(['mapType']),
+    loading() {
+      return this.$store.state.loadState === 'loading';
+    },
+    loaded() {
+      return this.$store.state.loadState === 'loaded';
+    },
     changeType() {
       return this.mapType === 'circle' ? '3D' : 'circle';
     },

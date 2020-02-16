@@ -2,6 +2,8 @@
 class FormerData {
   constructor() {
     this.data = null;
+    this.dateFrom = 0;
+    this.dateTo = 0;
   }
 
   async load() {
@@ -18,7 +20,7 @@ class FormerData {
       //   console.log(area, loc);
       // }
       return {
-        confirmedCount: +d['病例数'],
+        caseNum: +d['病例数'],
         date: new Date(d['发病日期']),
         areaName: d['地区'],
         loc,
@@ -28,6 +30,44 @@ class FormerData {
     });
 
     this.data = data.sort((a, b) => a.date - b.date);
+
+    this.dateFrom = this.data[0].date;
+    this.dateTo = this.data[this.data.length - 1].date;
+    console.log(this.dateFrom, this.dateTo);
+  }
+
+  aggregateProvinceMap() {
+    const provinceMap = {};
+    this.data.forEach(d => {
+      const loc = d.loc;
+      const p = provinceMap[loc.province] = provinceMap[loc.province] || {
+        confirmedCount: 0,
+        provinceName: loc.province,
+      };
+      p.confirmedCount += d.caseNum;
+    });
+    return provinceMap;
+  }
+
+  queryIncOfDate(date) {
+    date = new Date(dayjs(date).format('YYYY-MM-DD'));
+    return this.data.filter(d => d.date - date === 0);
+  }
+
+  getProvinceIncOfDate(date) {
+    date = dayjs(date).format('YYYY-MM-DD');
+    const data = this.queryIncOfDate(date);
+    const provinceMap = {};
+    data.forEach(d => {
+      const loc = d.loc;
+      const p = provinceMap[loc.province] = provinceMap[loc.province] || {
+        date,
+        confirmedCountInc: 0,
+        provinceName: loc.province,
+      };
+      p.confirmedCountInc += d.caseNum;
+    });
+    return Object.values(provinceMap);
   }
 
   queryPointsByDate(date) {
@@ -37,6 +77,7 @@ class FormerData {
 
   getVisiblePointsByDate(date) {
     const data = this.queryPointsByDate(date);
+    // dirty work: merge some data manually
     const lngLatMap = {};
     data.forEach(d => {
       const location = d.loc.location;
@@ -44,10 +85,12 @@ class FormerData {
       const p = lngLatMap[lngLat] = lngLatMap[lngLat] || {
         coordinates: location,
         confirmedCount: 0,
+        provinceName: d.loc.province,
+        cityName: d.loc.city,
         areaName: d.loc.province + d.loc.city,
-        data: [d],
+        data: [],
       };
-      p.confirmedCount += +d.confirmedCount;
+      p.confirmedCount += d.caseNum;
       p.data.push(d);
     });
 
