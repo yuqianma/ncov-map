@@ -11,7 +11,7 @@ export function getIncrementalData({ formerData, areaStats }) {
   let prevProvinceMap = formerData.aggregateProvinceMap();
 
   areaStats.forEach((areaStat) => {
-    const date = dayjs(areaStat.time).format('YYYY-MM-DD');
+    const date = new Date(dayjs(areaStat.time).format('YYYY-MM-DD'));
     const provinceMap = {};
     areaStat.forEach(area => {
       let provinceName = area.provinceName;

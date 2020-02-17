@@ -177,7 +177,7 @@ export default {
 
       map.addControl(new mapboxgl.NavigationControl({
         visualizePitch: true
-      }), 'bottom-right');
+      }), 'top-right');
 
       map.on('load', () => {
         map.addLayer(

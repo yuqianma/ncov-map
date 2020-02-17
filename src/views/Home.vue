@@ -1,20 +1,17 @@
 <template>
   <div class="home">
-    <div class="title">确诊数量</div>
+    <!-- <div class="title">确诊数量</div> -->
     <div class="point-info">{{pointInfo}}</div>
-    <div class="pane">
+    <div class="pane" :class="size">
+      <div class="handle" :class="size" @click="toggleSize"></div>
       <div class="time">{{formattedDataTime}}</div>
-      <Spinner v-if="loading" />
-      <input v-if="loaded" type="range" :min="dateMin" :max="dateMax" v-model="dataTime" />
-      <div v-if='loaded' class="range">
-        {{formattedDateMin}}
-        ~
-        {{formattedDateMax}}
-      </div>
-      <div class="control">
+      <Spinner v-if="loading" style="flex-grow: 1;"/>
+      <TimeMinimap v-if="loaded" />
+      <span class="update-time">update: {{updateTime}}</span>
+      <!-- <div class="control">
         change to
         <button v-on:click="toggleMapType">{{changeType}}</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -44,39 +41,72 @@
   align-items: center;
   /* justify-content: center; */
   bottom: 0;
-  padding: 10px 20px;
+  padding: 10px 15px;
   width: 100%;
   height: 150px;
   background: #fff;
-  border-radius: 20px 20px 0 0;
+  /* border-radius: 20px 20px 0 0; */
   box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.2);
 }
 
-.pane .time {
-  padding: 10px;
+.pane.large {
+  height: 50%;
 }
 
-.pane input[type="range"] {
-  width: 100%;
+.handle {
+  position: absolute;
+  top: -10px;
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  /* outline: 1px solid #000; */
 }
+
+.handle.small::after {
+  content: "▲";
+}
+
+.handle.large::after {
+  content: "▼";
+}
+
+.pane .time {
+  position: absolute;
+  align-self: start;
+  top: -25px;
+}
+
+.update-time {
+  font-size: 10px;
+  color: #888;
+  align-self: start;
+}
+
 </style>
 
 <script>
-import { DateRange } from '../constants';
-import { mapState } from 'vuex';
+import { DateRange, LatestTime } from '../constants';
+import { mapState, mapMutations } from 'vuex';
 import Spinner from '../components/Spinner';
+import TimeMinimap from '../components/TimeMinimap';
 
 export default {
   name: 'home',
   components: {
-    Spinner
+    Spinner,
+    TimeMinimap
   },
   data: () => ({
-    dateMin: +DateRange[0],
-    dateMax: +DateRange[1],
+    updateTime: dayjs(LatestTime).format('YYYY-MM-DD HH:mm'),
   }),
   computed: {
-    ...mapState(['mapType']),
+    ...mapState({
+      mapType: 'mapType',
+      size: 'paneSize'
+    }),
     loading() {
       return this.$store.state.loadState === 'loading';
     },
@@ -101,7 +131,7 @@ export default {
       }
     },
     formattedDataTime() {
-      return dayjs(this.$store.state.dataTime).format('YYYY-MM-DD HH:mm');
+      return dayjs(this.$store.state.dataTime).format('MM-DD');
     },
     pointInfo() {
       const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];
@@ -112,10 +142,9 @@ export default {
     }
   },
   methods: {
-    async load() {
-      this.loading = true;
-      await this.$store.dispatch('fetchAllData');
-      this.loading = false;
+    toggleSize() {
+      const nextSize = this.size === 'small' ? 'large' : 'small';
+      this.$store.commit('setPaneSize', nextSize)
     },
     toggleMapType() {
       this.$store.commit('setMapType', this.changeType);

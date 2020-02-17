@@ -33,7 +33,6 @@ class FormerData {
 
     this.dateFrom = this.data[0].date;
     this.dateTo = this.data[this.data.length - 1].date;
-    console.log(this.dateFrom, this.dateTo);
   }
 
   aggregateProvinceMap() {
@@ -55,7 +54,7 @@ class FormerData {
   }
 
   getProvinceIncOfDate(date) {
-    date = dayjs(date).format('YYYY-MM-DD');
+    date = new Date(dayjs(date).format('YYYY-MM-DD'));
     const data = this.queryIncOfDate(date);
     const provinceMap = {};
     data.forEach(d => {

@@ -28,10 +28,11 @@ const store = new Vuex.Store({
     pickedIdx: -1,
     dataTime: LatestTime,
     loadState: null,
+    paneSize: 'small',
   },
   getters: {
     visiblePoints({ areaStats, dataTime }) {
-      if (dataTime === LatestTime) {
+      if (dataTime >= LatestTime) {
         // areaStats
         return processAreaStat(window.getAreaStat);
       } else if (dataTime > SeparateDate) {
@@ -46,15 +47,18 @@ const store = new Vuex.Store({
     //   return aggregateData({ formerData, areaStats });
     // },
     incrementalData({ areaStats }) {
-      return getIncrementalData({ formerData, areaStats });
+      if (!areaStats.length) {
+        return null;
+      }
+      return getIncrementalData({ formerData, areaStats }).filter(datum => datum.date >= DateRange[0]);
     }
   },
   mutations: {
     setLoading: (s) => {
       s.loadState = 'loading';
     },
-    setDataTime: (s, _) => {
-      s.dataTime = _;
+    setDataTime: (s, v) => {
+      s.dataTime = v >= LatestTime ? LatestTime : v;
     },
     saveAllData: (s, areaStats) => {
       s.areaStats = areaStats;
@@ -62,6 +66,7 @@ const store = new Vuex.Store({
     },
     setPickedIdx: (s, _) => s.pickedIdx = _,
     setMapType: (s, _) => s.mapType = _,
+    setPaneSize: (s, _) => s.paneSize = _,
   },
   actions: {
     async fetchAllData({ state, commit }) {
@@ -72,10 +77,10 @@ const store = new Vuex.Store({
       console.time('load');
       await formerData.load();
       await fetchAllAreaStat().then(values => {
+        console.timeEnd('load');
         commit('saveAllData', values);
         // commit('setDataTime', DateRange[0]);
       });
-      console.timeEnd('load');
     }
   },
   modules: {
