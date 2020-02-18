@@ -4,6 +4,7 @@ export function getIncrementalData({ formerData, areaStats }) {
   let date = dayjs(formerData.dateFrom);
   while (date <= formerData.dateTo) {
     const provinceInc = formerData.getProvinceIncOfDate(date);
+    // console.log(date.format('YYYY-MM-DD'), provinceInc.reduce((acc, v) => acc + v.confirmedCountInc, 0));
     list.push(...provinceInc);
     date = date.add(1, 'day');
   }
@@ -11,8 +12,9 @@ export function getIncrementalData({ formerData, areaStats }) {
   let prevProvinceMap = formerData.aggregateProvinceMap();
 
   areaStats.forEach((areaStat) => {
-    const date = new Date(dayjs(areaStat.time).format('YYYY-MM-DD'));
+    const date = new Date(dayjs(areaStat.time).endOf('day'));
     const provinceMap = {};
+    let acc = 0;
     areaStat.forEach(area => {
       let provinceName = area.provinceName;
       if (LocDoc[provinceName]) {
@@ -34,12 +36,14 @@ export function getIncrementalData({ formerData, areaStats }) {
       //   console.warn(date, provinceName, prevProvinceMap[provinceName].confirmedCount, area.confirmedCount);
       // }
       
+      acc += confirmedCountInc;
       list.push({
         date,
         confirmedCountInc,
         provinceName
       });
     });
+    // console.log(dayjs(date).format('YYYY-MM-DD'), acc);
     prevProvinceMap = provinceMap;
   });
 

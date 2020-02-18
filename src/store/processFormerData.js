@@ -21,7 +21,7 @@ class FormerData {
       // }
       return {
         caseNum: +d['病例数'],
-        date: new Date(d['发病日期']),
+        date: new Date(dayjs(d['发病日期']).endOf('day')),
         areaName: d['地区'],
         loc,
         infoSource: d['消息来源'],
@@ -49,12 +49,12 @@ class FormerData {
   }
 
   queryIncOfDate(date) {
-    date = new Date(dayjs(date).format('YYYY-MM-DD'));
+    date = new Date(dayjs(date).endOf('day'));
     return this.data.filter(d => d.date - date === 0);
   }
 
   getProvinceIncOfDate(date) {
-    date = new Date(dayjs(date).format('YYYY-MM-DD'));
+    date = new Date(dayjs(date).endOf('day'));
     const data = this.queryIncOfDate(date);
     const provinceMap = {};
     data.forEach(d => {

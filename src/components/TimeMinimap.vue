@@ -182,24 +182,36 @@ function genSpec({ width, height, values }) {
           "encode": {
             "update": {
               "x": {"scale": "x", "signal": "indexDate", "offset": 0.5},
-              "y": {"value": 0},
+              "y": {"value": 10},
               "y2": {"field": {"group": "height"}},
               "stroke": {"value": "firebrick"}
             }
           }
         },
         // {
-        //   "type": "text",
+        //   "type": "rect",
         //   "encode": {
         //     "update": {
-        //       "x": {"scale": "x", "signal": "indexDate"},
-        //       "y2": {"field": {"group": "height"}, "offset": 0},
-        //       "align": {"value": "center"},
-        //       "text": {"signal": "indexDate ? timeFormat(indexDate, '%m-%d') : '' "},
-        //       "fill": {"value": "firebrick"}
+        //       "xc": {"scale": "x", "signal": "indexDate"},
+        //       "width": {"value": 40},
+        //       "height": {"value": 12},
+        //       "fill": {"value": "#ccc"}
         //     }
         //   }
-        // }
+        // },
+        {
+          "type": "text",
+          "encode": {
+            "update": {
+              "x": {"scale": "x", "signal": "indexDate"},
+              // "y2": {"field": {"group": "height"}, "offset": 0},
+              "baseline": {"value": "top"},
+              "align": {"value": "center"},
+              "text": {"signal": "indexDate ? timeFormat(indexDate, '%m-%d') : '' "},
+              "fill": {"value": "firebrick"}
+            }
+          }
+        },
       ]
     }
   ],
@@ -234,7 +246,8 @@ function genSpec({ width, height, values }) {
       "orient": "bottom",
       "gridScale": "y",
       "grid": true,
-      "tickCount": {"signal": "ceil(width/40)"},
+      // "tickCount": {"signal": "ceil(width/40)"},
+      "tickCount": "day",
       "domain": false,
       "labels": false,
       "maxExtent": 0,
