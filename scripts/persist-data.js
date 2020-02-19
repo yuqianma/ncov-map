@@ -18,8 +18,7 @@ function filterListByDay(list) {
   while (++i < list.length) {
     const fileName = list[i];
     const datetime = new Date(getTimeFromAreaStatFileName(fileName));
-    // FIXME: time zone
-    let date = (datetime.getMonth() + 1 + '').padStart(2, '0') + (datetime.getDate() + '').padStart(2, '0');
+    let date = datetime.toLocaleDateString(undefined,{timeZone: 'Asia/Shanghai'});
     if (date !== currDate) {
       prevFileName && filteredList.push(prevFileName);
       currDate = date;
