@@ -92,10 +92,10 @@ function genSpec({ width, height, values }) {
       "name": "table",
       "source": "source",
       "transform": [
-        {
-          "type": "filter",
-          "expr": " datum.provinceName != '湖北省' "
-        },
+        // {
+        //   "type": "filter",
+        //   "expr": " datum.provinceName != '湖北省' "
+        // },
         {
           "field": "date",
           "type": "timeunit",

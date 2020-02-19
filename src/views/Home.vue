@@ -4,7 +4,7 @@
     <div class="point-info">{{pointInfo}}</div>
     <div class="pane" :class="size">
       <div class="handle" :class="size" @click="toggleSize"></div>
-      <div class="time">{{formattedDataTime}}</div>
+      <div class="day-info">{{dayInfo}}</div>
       <Spinner v-if="loading" style="flex-grow: 1;"/>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
@@ -73,7 +73,7 @@
   content: "▼";
 }
 
-.pane .time {
+.pane .day-info {
   position: absolute;
   align-self: start;
   top: -25px;
@@ -130,8 +130,15 @@ export default {
         this.$store.commit('setDataTime', +v);
       }
     },
-    formattedDataTime() {
-      return dayjs(this.$store.state.dataTime).format('MM-DD');
+    dayInfo() {
+      const { dataTime } = this.$store.state;
+      const { incrementalData } = this.$store.getters;
+      const dateStr = dayjs(dataTime).format('MM-DD');
+      let increment = incrementalData && incrementalData.dateMap[+dayjs(dataTime).endOf('day')];
+      if (isNaN(increment)) {
+        increment = '';
+      }
+      return `${dateStr} | ${increment}`;
     },
     pointInfo() {
       const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];

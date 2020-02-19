@@ -1,10 +1,21 @@
-export function getIncrementalData({ formerData, areaStats }) {
+function sumDateInc(listOfDate) {
+  return listOfDate.reduce((acc, v) => acc + v.confirmedCountInc, 0);
+}
+
+function sumAreaStatCount(areaStat) {
+  return areaStat.reduce((acc, v) => acc + v.confirmedCount, 0);
+}
+
+export function getIncrementalData({ dateFrom, formerData, areaStats }) {
   const list = [];
+
+  const dateIncMap = {};
 
   let date = dayjs(formerData.dateFrom);
   while (date <= formerData.dateTo) {
     const provinceInc = formerData.getProvinceIncOfDate(date);
-    // console.log(date.format('YYYY-MM-DD'), provinceInc.reduce((acc, v) => acc + v.confirmedCountInc, 0));
+    dateIncMap[+date] = sumDateInc(provinceInc);
+    // console.log(dayjs(date).format('MM-DD'), dateIncMap[+date]);
     list.push(...provinceInc);
     date = date.add(1, 'day');
   }
@@ -14,7 +25,7 @@ export function getIncrementalData({ formerData, areaStats }) {
   areaStats.forEach((areaStat) => {
     const date = new Date(dayjs(areaStat.time).endOf('day'));
     const provinceMap = {};
-    let acc = 0;
+    const listOfDate = [];
     areaStat.forEach(area => {
       let provinceName = area.provinceName;
       if (LocDoc[provinceName]) {
@@ -36,16 +47,23 @@ export function getIncrementalData({ formerData, areaStats }) {
       //   console.warn(date, provinceName, prevProvinceMap[provinceName].confirmedCount, area.confirmedCount);
       // }
       
-      acc += confirmedCountInc;
-      list.push({
+      listOfDate.push({
         date,
         confirmedCountInc,
         provinceName
       });
     });
-    // console.log(dayjs(date).format('YYYY-MM-DD'), acc);
+
+    list.push(...listOfDate);
+    dateIncMap[+date] = sumDateInc(listOfDate);
+    // console.log(dayjs(areaStat.time).format('MM-DD HH:mm'), dateIncMap[+date]);
     prevProvinceMap = provinceMap;
   });
 
-  return list;
+  const filteredList = list.filter(v => v.date >= dateFrom);
+  
+  filteredList.dateMap = dateIncMap;
+  Object.freeze(filteredList);
+
+  return filteredList;
 }

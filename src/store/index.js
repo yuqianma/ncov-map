@@ -50,7 +50,7 @@ const store = new Vuex.Store({
       if (!areaStats.length) {
         return null;
       }
-      return getIncrementalData({ formerData, areaStats }).filter(datum => datum.date >= DateRange[0]);
+      return getIncrementalData({ dateFrom: DateRange[0], formerData, areaStats });
     }
   },
   mutations: {
