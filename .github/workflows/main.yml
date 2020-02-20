@@ -15,6 +15,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Cache Primes
+      id: cache-primes
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
     - name: Get current date
       id: date
       run: echo "::set-output name=cn_time::$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')"
