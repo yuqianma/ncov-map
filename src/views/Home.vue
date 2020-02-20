@@ -4,14 +4,10 @@
     <div class="point-info">{{pointInfo}}</div>
     <div class="pane" :class="size">
       <div class="handle" :class="size" @click="toggleSize"></div>
-      <div class="day-info">{{dayInfo}}</div>
+      <!-- <div class="day-info">{{dayInfo}}</div> -->
       <Spinner v-if="loading" style="flex-grow: 1;"/>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
-      <!-- <div class="control">
-        change to
-        <button v-on:click="toggleMapType">{{changeType}}</button>
-      </div> -->
     </div>
   </div>
 </template>
@@ -122,14 +118,14 @@ export default {
     formattedDateMax() {
       return dayjs(this.dateMax).format('MM-DD');
     },
-    dataTime: {
-      get () {
-        return +this.$store.state.dataTime;
-      },
-      set (v) {
-        this.$store.commit('setDataTime', +v);
-      }
-    },
+    // dataTime: {
+    //   get () {
+    //     return +this.$store.state.dataTime;
+    //   },
+    //   set (v) {
+    //     this.$store.commit('setDataTime', +v);
+    //   }
+    // },
     dayInfo() {
       const { dataTime } = this.$store.state;
       const { incrementalData } = this.$store.getters;
@@ -138,7 +134,7 @@ export default {
       if (isNaN(increment)) {
         increment = '';
       }
-      return `${dateStr} | ${increment}`;
+      return `${dateStr}: ↑${increment}`;
     },
     pointInfo() {
       const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];

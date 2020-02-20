@@ -1,12 +1,34 @@
 <template>
-  <div ref="container" class="time-minimap"></div>
+  <div ref="wrapper" class="wrapper">
+    <div ref="container" class="container"></div>
+    <label class="include-hubei">
+      <input type="checkbox" v-model="includeHubei"/>
+      包含湖北省
+    </label>
+  </div>
 </template>
 
 <style scoped>
-.time-minimap {
+.wrapper {
   width: 100%;
   height: 100%;
   /* background: #eee; */
+}
+
+.include-hubei {
+  position: absolute;
+  bottom: 40px;
+  left: 20px;
+  font-size: 12px;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.include-hubei input {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+  vertical-align: middle;
 }
 </style>
 
@@ -15,17 +37,24 @@ import { mapState, mapGetters } from 'vuex';
 
 export default {
   name: 'TimeMinimap',
-  data: () => ({}),
+  data: () => ({
+    includeHubei: true,
+  }),
   mounted () {
     this.initChart();
   },
   computed: {
     ...mapState(['paneSize']),
-    ...mapGetters(['incrementalData'])
+    ...mapGetters(['incrementalData']),
   },
   watch: {
+    includeHubei(v) {
+      this.view && this.view.signal('includeHubei', v).runAsync();
+    },
     paneSize() {
+      this.$refs.container.style.display = 'none';
       const { width, height } = this.getContainerSize();
+      this.$refs.container.style.display = '';
       this.view && this.view
         .width(width)
         .height(height)
@@ -37,7 +66,7 @@ export default {
   },
   methods: {
     getContainerSize() {
-      const container = this.$refs.container;
+      const container = this.$refs.wrapper;
 
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -89,13 +118,36 @@ function genSpec({ width, height, values }) {
       // "format": {"type": "json", "parse": {"date": "date"}},
     },
     {
+      "name": "dateCount",
+      "source": "source",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": " includeHubei ? true : datum.provinceName != '湖北省' "
+        },
+        {
+          "field": "date",
+          "type": "timeunit",
+          "units": ["year", "month", "date"],
+          "as": ["yearmonth_date", "yearmonth_date_end"]
+        },
+        {
+          "type": "aggregate",
+          "groupby": ["yearmonth_date"],
+          "ops": ["sum"],
+          "fields": ["confirmedCountInc"],
+          "as": ["sum_count"]
+        }
+      ]
+    },
+    {
       "name": "table",
       "source": "source",
       "transform": [
-        // {
-        //   "type": "filter",
-        //   "expr": " datum.provinceName != '湖北省' "
-        // },
+        {
+          "type": "filter",
+          "expr": " includeHubei ? true : datum.provinceName != '湖北省' "
+        },
         {
           "field": "date",
           "type": "timeunit",
@@ -129,6 +181,10 @@ function genSpec({ width, height, values }) {
     }
   ],
   "signals": [
+    {
+      "name": "includeHubei",
+      "value": true
+    },
     {
       "name": "indexDate",
       "on": [
@@ -182,7 +238,7 @@ function genSpec({ width, height, values }) {
           "encode": {
             "update": {
               "x": {"scale": "x", "signal": "indexDate", "offset": 0.5},
-              "y": {"value": 10},
+              // "y": {"value": 24},
               "y2": {"field": {"group": "height"}},
               "stroke": {"value": "firebrick"}
             }
@@ -203,12 +259,29 @@ function genSpec({ width, height, values }) {
           "type": "text",
           "encode": {
             "update": {
-              "x": {"scale": "x", "signal": "indexDate"},
-              // "y2": {"field": {"group": "height"}, "offset": 0},
+              "x": {"scale": "x", "signal": "indexDate", "offset": -2},
               "baseline": {"value": "top"},
-              "align": {"value": "center"},
+              "align": {"value": "right"},
+              "text": {"signal": "indexDate ? '↑ ' + scale('count', datetime(year(indexDate), month(indexDate), date(indexDate)) ) : '' "},
+              "fill": {"value": "firebrick"},
+              "fontWeight": {"value": "bolder"},
+              "stroke": {"value": "rgba(255,255,255,0.3)"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "encode": {
+            "update": {
+              "x": {"scale": "x", "signal": "indexDate", "offset": -2},
+              // "y2": {"field": {"group": "height"}, "offset": 0},
+              "y": {"value": 12},
+              "baseline": {"value": "top"},
+              "align": {"value": "right"},
               "text": {"signal": "indexDate ? timeFormat(indexDate, '%m-%d') : '' "},
-              "fill": {"value": "firebrick"}
+              "fill": {"value": "firebrick"},
+              "fontWeight": {"value": "bolder"},
+              "stroke": {"value": "rgba(255,255,255,0.3)"}
             }
           }
         },
@@ -238,6 +311,12 @@ function genSpec({ width, height, values }) {
       "type": "ordinal",
       "domain": {"data": "table", "field": "provinceName", "sort": true},
       "range": {"scheme": "category20b"}
+    },
+    {
+      "name": "count",
+      "type": "ordinal",
+      "domain": {"data": "dateCount", "field": "yearmonth_date"},
+      "range": {"data": "dateCount", "field": "sum_count"}
     }
   ],
   "axes": [
