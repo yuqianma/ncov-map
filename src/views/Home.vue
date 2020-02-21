@@ -1,50 +1,60 @@
 <template>
-  <div class="home">
-    <!-- <div class="title">确诊数量</div> -->
-    <div class="point-info">{{pointInfo}}</div>
-    <div class="pane" :class="size">
-      <div class="handle" :class="size" @click="toggleSize"></div>
+  <div class="home" :class="size">
+    <div class="geo-map"><Map /></div>
+    <div class="pane">
+      <div class="handle" @click="toggleSize"></div>
       <Spinner v-if="loading" style="flex-grow: 1;"/>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
+      <div class="type-control">
+        change to
+        <button v-on:click="toggleMapType">{{changeType}}</button>
+      </div>
+    </div>
+    <div class="point-info">
+      <div>{{dataDate}} 累计确诊</div>
+      <div>{{pointInfo}}</div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.title {
-  position: fixed;
-  top: 5px;
-  right: 0;
-  padding: 5px;
-  background: #2c3e50;
-  color: #ccc;
-  border-radius: 5px 0 0 5px;
+.home {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 }
 
 .point-info {
   position: fixed;
   padding: 5px;
-  font-weight: bolder;
+  font-size: 14px;
+  font-weight: bold;
+  color: #888;
+}
+
+.geo-map {
+  height: calc(100% - 150px);
+}
+.large .geo-map {
+  height: 50%;
 }
 
 .pane {
+  position: relative;
   box-sizing: border-box;
-  position: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* justify-content: center; */
-  bottom: 0;
-  padding: 10px 15px;
+  padding: 10px 15px 15px 15px;
   width: 100%;
   height: 150px;
   background: #fff;
-  /* border-radius: 20px 20px 0 0; */
   box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.2);
 }
 
-.pane.large {
+.large .pane {
   height: 50%;
 }
 
@@ -60,24 +70,26 @@
   /* outline: 1px solid #000; */
 }
 
-.handle.small::after {
+.small .handle::after {
   content: "▲";
 }
 
-.handle.large::after {
+.large .handle::after {
   content: "▼";
 }
 
-.pane .day-info {
-  position: absolute;
-  align-self: start;
-  top: -25px;
-}
-
 .update-time {
+  position: fixed;
+  bottom: 0;
   font-size: 10px;
   color: #888;
   align-self: start;
+}
+
+.type-control {
+  position: absolute;
+  top: -1.8em;
+  left: 5px;
 }
 
 </style>
@@ -85,12 +97,14 @@
 <script>
 import { DateRange, LatestTime } from '../constants';
 import { mapState, mapMutations } from 'vuex';
+import Map from '../components/Map';
 import Spinner from '../components/Spinner';
 import TimeMinimap from '../components/TimeMinimap';
 
 export default {
   name: 'home',
   components: {
+    Map,
     Spinner,
     TimeMinimap
   },
@@ -98,11 +112,8 @@ export default {
     updateTime: dayjs(LatestTime).format('YYYY-MM-DD HH:mm'),
   }),
   computed: {
-    ...mapState({
-      mapType: 'mapType',
-      size: 'paneSize',
-      pickedName: 'pickedName'
-    }),
+    ...mapState(['mapType', 'pickedName', 'dataTime']),
+    ...mapState({ size: 'paneSize' }),
     loading() {
       return this.$store.state.loadState === 'loading';
     },
@@ -112,11 +123,8 @@ export default {
     changeType() {
       return this.mapType === 'circle' ? '3D' : 'circle';
     },
-    formattedDateMin() {
-      return dayjs(this.dateMin).format('MM-DD');
-    },
-    formattedDateMax() {
-      return dayjs(this.dateMax).format('MM-DD');
+    dataDate() {
+      return dayjs(this.dataTime).format('MM-DD');
     },
     pointInfo() {
       const { visiblePoints } = this.$store.getters;

@@ -4,11 +4,8 @@
 
 <style>
 #map-container {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: calc(100% - 150px);
+  height: 100%;
 }
 
 #map-container .mapboxgl-marker {
@@ -34,10 +31,13 @@ export default {
     this.mapbox();
   },
   computed: {
-    ...mapState(['mapType']),
+    ...mapState(['mapType', 'paneSize']),
     ...mapGetters(['visiblePoints'])
   },
   watch: {
+    paneSize() {
+      this.map && this.$nextTick(() => this.map.resize());
+    },
     visiblePoints(points) {
       if (this.mapType === 'circle') {
         this.map.getSource('points').setData(this.dataToPointFeature(points));
@@ -175,7 +175,7 @@ export default {
 
       map.addControl(new mapboxgl.NavigationControl({
         visualizePitch: true
-      }), 'top-right');
+      }), 'bottom-right');
 
       map.on('load', () => {
         map.addLayer(

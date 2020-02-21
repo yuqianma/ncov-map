@@ -1,12 +1,11 @@
 <template>
   <div id="app">
-    <Map />
     <router-view/>
   </div>
 </template>
 
 <style>
-html, body {
+html, body, #app {
   margin: 0;
   width: 100%;
   height: 100%;
@@ -22,11 +21,9 @@ html, body {
 </style>
 
 <script>
-import Map from './components/Map';
 
 export default {
   components: {
-    Map,
   }
 }
 
