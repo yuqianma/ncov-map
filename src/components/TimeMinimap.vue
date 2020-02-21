@@ -115,11 +115,6 @@ function genSpec({ width, height, values }) {
     {
       "name": "source",
       "values": values,
-      // "format": {"type": "json", "parse": {"date": "date"}},
-    },
-    {
-      "name": "dateCount",
-      "source": "source",
       "transform": [
         {
           "type": "filter",
@@ -130,13 +125,31 @@ function genSpec({ width, height, values }) {
           "type": "timeunit",
           "units": ["year", "month", "date"],
           "as": ["yearmonth_date", "yearmonth_date_end"]
-        },
+        }
+      ]
+    },
+    {
+      "name": "dateCountMap",
+      "source": "source",
+      "transform": [
         {
           "type": "aggregate",
           "groupby": ["yearmonth_date"],
           "ops": ["sum"],
           "fields": ["confirmedCountInc"],
           "as": ["sum_count"]
+        },
+        {
+          "type": "impute",
+          "field": "sum_count",
+          "key": "yearmonth_date",
+          "method": "value",
+          "value": 0
+        },
+        {
+          "type": "pivot",
+          "field": "yearmonth_date",
+          "value": "sum_count"
         }
       ]
     },
@@ -144,16 +157,6 @@ function genSpec({ width, height, values }) {
       "name": "table",
       "source": "source",
       "transform": [
-        {
-          "type": "filter",
-          "expr": " includeHubei ? true : datum.provinceName != '湖北省' "
-        },
-        {
-          "field": "date",
-          "type": "timeunit",
-          "units": ["year", "month", "date"],
-          "as": ["yearmonth_date", "yearmonth_date_end"]
-        },
         {
           "type": "aggregate",
           "groupby": ["yearmonth_date", "provinceName"],
@@ -193,6 +196,10 @@ function genSpec({ width, height, values }) {
           "update": "invert('x', clamp(x(), 0, width))"
         }
       ]
+    },
+    {
+      "name": "dateCount",
+      "update": "data('dateCountMap')[0][datetime(year(indexDate), month(indexDate), date(indexDate))]"
     }
   ],
   "marks": [
@@ -262,7 +269,7 @@ function genSpec({ width, height, values }) {
               "x": {"scale": "x", "signal": "indexDate", "offset": -2},
               "baseline": {"value": "top"},
               "align": {"value": "right"},
-              "text": {"signal": "indexDate ? '↑ ' + scale('count', datetime(year(indexDate), month(indexDate), date(indexDate)) ) : '' "},
+              "text": {"signal": "dateCount ? '↑' + dateCount : '' "},
               "fill": {"value": "firebrick"},
               "fontWeight": {"value": "bolder"},
               "stroke": {"value": "rgba(255,255,255,0.3)"}
@@ -293,7 +300,8 @@ function genSpec({ width, height, values }) {
       "name": "x",
       "type": "time",
       "domain": {"data": "table", "field": "yearmonth_date"},
-      "range": [0, {"signal": "width"}]
+      "range": [0, {"signal": "width"}],
+      "nice": "day"
     },
     {
       "name": "y",
@@ -311,12 +319,6 @@ function genSpec({ width, height, values }) {
       "type": "ordinal",
       "domain": {"data": "table", "field": "provinceName", "sort": true},
       "range": {"scheme": "category20b"}
-    },
-    {
-      "name": "count",
-      "type": "ordinal",
-      "domain": {"data": "dateCount", "field": "yearmonth_date"},
-      "range": {"data": "dateCount", "field": "sum_count"}
     }
   ],
   "axes": [

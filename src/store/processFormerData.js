@@ -21,7 +21,9 @@ class FormerData {
       // }
       return {
         caseNum: +d['病例数'],
-        date: new Date(dayjs(d['发病日期']).endOf('day')),
+        // As data from dxy.cn indicate the previous day cases,
+        // we offset the date one day late to align to dxy.
+        date: new Date(dayjs(d['发病日期']).add(1, 'day').endOf('day')),
         areaName: d['地区'],
         loc,
         infoSource: d['消息来源'],
