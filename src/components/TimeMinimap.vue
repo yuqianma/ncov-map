@@ -2,14 +2,16 @@
   <div ref="wrapper" class="wrapper">
     <div ref="container" class="container"></div>
     <label class="include-hubei">
-      <input type="checkbox" v-model="includeHubei"/>
+      新增确诊<br>
       包含湖北省
+      <input type="checkbox" v-model="includeHubei"/>
     </label>
   </div>
 </template>
 
 <style scoped>
 .wrapper {
+  user-select: none;
   width: 100%;
   height: 100%;
   /* background: #eee; */
@@ -17,11 +19,11 @@
 
 .include-hubei {
   position: absolute;
-  bottom: 40px;
+  bottom: 35px;
   left: 20px;
-  font-size: 12px;
+  font-size: 10px;
   vertical-align: middle;
-  background: #fff;
+  /* background: #fff; */
 }
 
 .include-hubei input {
@@ -29,6 +31,12 @@
   width: 12px;
   height: 12px;
   vertical-align: middle;
+}
+</style>
+
+<style>
+.container .mark-text.role-mark{
+  paint-order: stroke;
 }
 </style>
 
@@ -181,6 +189,23 @@ function genSpec({ width, height, values }) {
           "offset": "center"
         }
       ]
+    },
+    {
+      "name": "textSeries",
+      "source": "table",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["provinceName"],
+          "ops": ["argmax"],
+          "fields": ["sum_count"],
+          "as": ["argmax"]
+        },
+        {
+          "type": "filter",
+          "expr": "datum.argmax.sum_count > (includeHubei ? 1000 : 50)"
+        },
+      ]
     }
   ],
   "signals": [
@@ -190,6 +215,7 @@ function genSpec({ width, height, values }) {
     },
     {
       "name": "indexDate",
+      "value": values[values.length - 1].date,
       "on": [
         {
           "events": "mousemove, touchmove",
@@ -223,7 +249,6 @@ function genSpec({ width, height, values }) {
         {
           "name": "marks",
           "type": "area",
-          "style": ["area"],
           "sort": {"field": "datum[\"yearmonth_date\"]"},
           "from": {"data": "faceted_path_main"},
           "encode": {
@@ -231,68 +256,66 @@ function genSpec({ width, height, values }) {
               "interpolate": {"value": "monotone"},
               "orient": {"value": "vertical"},
               "fill": {"scale": "color", "field": "provinceName"},
+              "fillOpacity": {"value": 1},
               "x": {"scale": "x", "field": "yearmonth_date"},
               "y": {"scale": "y", "field": "sum_count_end"},
               "y2": {"scale": "y", "field": "sum_count_start"},
               "defined": {
                 "signal": "isValid(datum[\"yearmonth_date\"]) && isFinite(+datum[\"yearmonth_date\"]) && isValid(datum[\"sum_count\"]) && isFinite(+datum[\"sum_count\"])"
               }
+            },
+            "hover": {
+              "fillOpacity": {"value": 0.5},
             }
           }
-        },
-        {
-          "type": "rule",
-          "encode": {
-            "update": {
-              "x": {"scale": "x", "signal": "indexDate", "offset": 0.5},
-              // "y": {"value": 24},
-              "y2": {"field": {"group": "height"}},
-              "stroke": {"value": "firebrick"}
-            }
-          }
-        },
-        // {
-        //   "type": "rect",
-        //   "encode": {
-        //     "update": {
-        //       "xc": {"scale": "x", "signal": "indexDate"},
-        //       "width": {"value": 40},
-        //       "height": {"value": 12},
-        //       "fill": {"value": "#ccc"}
-        //     }
-        //   }
-        // },
-        {
-          "type": "text",
-          "encode": {
-            "update": {
-              "x": {"scale": "x", "signal": "indexDate", "offset": -2},
-              "baseline": {"value": "top"},
-              "align": {"value": "right"},
-              "text": {"signal": "dateCount ? '↑' + dateCount : '' "},
-              "fill": {"value": "firebrick"},
-              "fontWeight": {"value": "bolder"},
-              "stroke": {"value": "rgba(255,255,255,0.3)"}
-            }
-          }
-        },
-        {
-          "type": "text",
-          "encode": {
-            "update": {
-              "x": {"scale": "x", "signal": "indexDate", "offset": -2},
-              // "y2": {"field": {"group": "height"}, "offset": 0},
-              "y": {"value": 12},
-              "baseline": {"value": "top"},
-              "align": {"value": "right"},
-              "text": {"signal": "indexDate ? timeFormat(indexDate, '%m-%d') : '' "},
-              "fill": {"value": "firebrick"},
-              "fontWeight": {"value": "bolder"},
-              "stroke": {"value": "rgba(255,255,255,0.3)"}
-            }
-          }
-        },
+        }
       ]
+    },
+    {
+      "type": "text",
+      "from": {"data": "textSeries"},
+      "interactive": false,
+      "encode": {
+        "update": {
+          "x": {"scale": "x", "field": "argmax.yearmonth_date"},
+          "y": {"signal": "scale('y', 0.5 * (datum.argmax.sum_count_start + datum.argmax.sum_count_end))"},
+          "align": {"value": "right"},
+          "baseline": {"value": "middle"},
+          // "fontSize": {"scale": "font", "field": "argmax.perc", "offset": 5},
+          "fontSize": {"value": 10},
+          "fontWeight": {"value": "bolder"},
+          "text": {"field": "provinceName"},
+          "fill": {"scale": "color", "field": "provinceName"},
+          "stroke": {"value": "#fff"}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "interactive": false,
+      "encode": {
+        "update": {
+          "x": {"scale": "x", "signal": "indexDate", "offset": 0.5},
+          // "y": {"value": 24},
+          "y2": {"field": {"group": "height"}},
+          "stroke": {"value": "firebrick"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "interactive": false,
+      "encode": {
+        "update": {
+          "x": {"scale": "x", "signal": "indexDate", "offset": -2},
+          "baseline": {"value": "top"},
+          "align": {"signal": " scale('x', indexDate) < 40 ? 'left' : 'right' "},
+          "text": {"signal": "[dateCount ? '↑' + dateCount : '',  indexDate ? timeFormat(indexDate, '%m-%d') : '' ]"},
+          "fill": {"value": "firebrick"},
+          "fontWeight": {"value": "bolder"},
+          "stroke": {"value": "#fff"}
+        }
+      }
     }
   ],
   "scales": [
@@ -300,8 +323,7 @@ function genSpec({ width, height, values }) {
       "name": "x",
       "type": "time",
       "domain": {"data": "table", "field": "yearmonth_date"},
-      "range": [0, {"signal": "width"}],
-      "nice": "day"
+      "range": [0, {"signal": "width - 5"}],
     },
     {
       "name": "y",
@@ -327,7 +349,6 @@ function genSpec({ width, height, values }) {
       "orient": "bottom",
       "gridScale": "y",
       "grid": true,
-      // "tickCount": {"signal": "ceil(width/40)"},
       "tickCount": "day",
       "domain": false,
       "labels": false,
