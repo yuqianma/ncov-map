@@ -73,8 +73,7 @@ export default {
             type: 'Feature',
             properties: {
               count: p.confirmedCount,
-              areaName: p.areaName,
-              idx: i
+              areaName: p.areaName
             },
             geometry: {
               type: 'Point',
@@ -94,8 +93,7 @@ export default {
             type: 'Feature',
             properties: {
               count: p.confirmedCount,
-              areaName: p.areaName,
-              idx: i
+              areaName: p.areaName
             },
             geometry: {
               type: 'Polygon',
@@ -279,9 +277,9 @@ export default {
         const features = map.queryRenderedFeatures(e.point);
 
         if (features[0]) {
-          this.$store.commit('setPickedIdx', features[0].properties.idx);
+          this.$store.commit('setPickedName', features[0].properties.areaName);
         } else {
-          this.$store.commit('setPickedIdx', -1);
+          this.$store.commit('setPickedName', null);
         }
       });
     },

@@ -25,7 +25,7 @@ const store = new Vuex.Store({
   state: {
     mapType: 'circle',
     areaStats: [],
-    pickedIdx: -1,
+    pickedName: null, 
     dataTime: LatestTime,
     loadState: null,
     paneSize: 'small',
@@ -51,7 +51,7 @@ const store = new Vuex.Store({
         return null;
       }
       return getIncrementalData({ dateFrom: DateRange[0], formerData, areaStats });
-    }
+    },
   },
   mutations: {
     setLoading: (s) => {
@@ -64,7 +64,7 @@ const store = new Vuex.Store({
       s.areaStats = areaStats;
       s.loadState = 'loaded';
     },
-    setPickedIdx: (s, _) => s.pickedIdx = _,
+    setPickedName: (s, _) => s.pickedName = _,
     setMapType: (s, _) => s.mapType = _,
     setPaneSize: (s, _) => s.paneSize = _,
   },

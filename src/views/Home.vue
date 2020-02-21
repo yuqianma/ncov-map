@@ -4,7 +4,6 @@
     <div class="point-info">{{pointInfo}}</div>
     <div class="pane" :class="size">
       <div class="handle" :class="size" @click="toggleSize"></div>
-      <!-- <div class="day-info">{{dayInfo}}</div> -->
       <Spinner v-if="loading" style="flex-grow: 1;"/>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
@@ -101,7 +100,8 @@ export default {
   computed: {
     ...mapState({
       mapType: 'mapType',
-      size: 'paneSize'
+      size: 'paneSize',
+      pickedName: 'pickedName'
     }),
     loading() {
       return this.$store.state.loadState === 'loading';
@@ -118,26 +118,9 @@ export default {
     formattedDateMax() {
       return dayjs(this.dateMax).format('MM-DD');
     },
-    // dataTime: {
-    //   get () {
-    //     return +this.$store.state.dataTime;
-    //   },
-    //   set (v) {
-    //     this.$store.commit('setDataTime', +v);
-    //   }
-    // },
-    dayInfo() {
-      const { dataTime } = this.$store.state;
-      const { incrementalData } = this.$store.getters;
-      const dateStr = dayjs(dataTime).format('MM-DD');
-      let increment = incrementalData && incrementalData.dateMap[+dayjs(dataTime).endOf('day')];
-      if (isNaN(increment)) {
-        increment = '';
-      }
-      return `${dateStr}: ↑${increment}`;
-    },
     pointInfo() {
-      const point = this.$store.getters.visiblePoints[this.$store.state.pickedIdx];
+      const { visiblePoints } = this.$store.getters;
+      const point = this.pickedName && visiblePoints.find(p =>p.areaName === this.pickedName);
       if (!point) {
         return '';
       }

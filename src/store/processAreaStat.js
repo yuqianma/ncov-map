@@ -13,13 +13,12 @@ export function processAreaStat(areaStat) {
       console.error('cannot find:', areaName);
       return;
     }
-    data.areaName = areaName;
     const point = {
       coordinates: loc.location,
       confirmedCount: data.confirmedCount,
       provinceName: loc.province,
-      cityName: loc.cityName,
-      areaName,
+      cityName: loc.city,
+      areaName: loc.province + loc.city,
       data,
     };
     points.push(point);
