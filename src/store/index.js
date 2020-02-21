@@ -29,6 +29,7 @@ const store = new Vuex.Store({
     dataTime: LatestTime,
     loadState: null,
     paneSize: 'small',
+    playing: false,
   },
   getters: {
     visiblePoints({ areaStats, dataTime }) {
@@ -67,6 +68,7 @@ const store = new Vuex.Store({
     setPickedName: (s, _) => s.pickedName = _,
     setMapType: (s, _) => s.mapType = _,
     setPaneSize: (s, _) => s.paneSize = _,
+    togglePlay: (s, _) => s.playing = !s.playing,
   },
   actions: {
     async fetchAllData({ state, commit }) {
@@ -84,6 +86,31 @@ const store = new Vuex.Store({
     }
   },
   modules: {
+  }
+});
+
+let timerId = -1;
+store.watch(s => s.playing, (v) => {
+  if (v) {
+    let date = store.state.dataTime;
+    const endDate = dayjs(DateRange[1]).endOf('day');
+    console.log(endDate, date);
+    if (endDate.isSame(date, 'date')) {
+      date = DateRange[0];
+    }
+    date = dayjs(date).endOf('day');
+    store.commit('setDataTime', date);
+    timerId = setInterval(() => {
+      date = date.add(1, 'day').endOf('day');
+      if (date <= endDate && store.state.playing) {
+        store.commit('setDataTime', date);
+      } else {
+        clearInterval(timerId);
+        store.commit('togglePlay');
+      }
+    }, 100);
+  } else {
+    clearInterval(timerId);
   }
 });
 

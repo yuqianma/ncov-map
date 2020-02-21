@@ -20,7 +20,7 @@
 .include-hubei {
   position: absolute;
   bottom: 35px;
-  left: 20px;
+  left: 15px;
   font-size: 10px;
   vertical-align: middle;
   /* background: #fff; */
@@ -52,7 +52,7 @@ export default {
     this.initChart();
   },
   computed: {
-    ...mapState(['paneSize']),
+    ...mapState(['paneSize', 'dataTime']),
     ...mapGetters(['incrementalData']),
   },
   watch: {
@@ -70,6 +70,9 @@ export default {
     },
     incrementalData(values) {
       this.initChart();
+    },
+    dataTime(v) {
+      this.view && this.view.signal('indexDate', v).runAsync();
     }
   },
   methods: {

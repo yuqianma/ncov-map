@@ -8,8 +8,9 @@
       <span class="update-time">update: {{updateTime}}</span>
       <div class="type-control">
         change to
-        <button v-on:click="toggleMapType">{{changeType}}</button>
+        <button @click="toggleMapType">{{changeType}}</button>
       </div>
+      <div v-if="loaded" class="play" @click="togglePlay">{{playing ? '■' : '▶'}}</div>
     </div>
     <div class="point-info">
       <div>{{dataDate}} 累计确诊</div>
@@ -92,6 +93,20 @@
   left: 5px;
 }
 
+.play {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 40px;
+  align-self: start;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 18px;
+  background: #fff;
+  border: 1px solid #888;
+  border-radius: 3px;
+}
+
 </style>
 
 <script>
@@ -112,7 +127,7 @@ export default {
     updateTime: dayjs(LatestTime).format('YYYY-MM-DD HH:mm'),
   }),
   computed: {
-    ...mapState(['mapType', 'pickedName', 'dataTime']),
+    ...mapState(['mapType', 'pickedName', 'dataTime', 'playing']),
     ...mapState({ size: 'paneSize' }),
     loading() {
       return this.$store.state.loadState === 'loading';
@@ -142,6 +157,9 @@ export default {
     },
     toggleMapType() {
       this.$store.commit('setMapType', this.changeType);
+    },
+    togglePlay() {
+      this.$store.commit('togglePlay');
     }
   }
 }
