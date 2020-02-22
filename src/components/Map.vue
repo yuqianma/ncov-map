@@ -32,14 +32,14 @@ const Colors2 = [
   "#b1e5eb",
   "#90dbfc",
   "#e170c4",
-  "#d84b86",
+  "#eb1d78",
   "#b91b55",
   "#660000"
 ]
 
 const VisMap = {
   Domains: [1, 10, 100, 500, 5000, 10000],
-  Radius: [1, 2, 4, 8, 10, 15],
+  Sizes: [1, 2, 4, 8, 10, 15],
   Colors: Colors2
 }
 
@@ -211,23 +211,28 @@ export default {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
+                // 2,
+                // ['interpolate', ['linear'], ['ln', ['+', ['get', 'count'], 1]],
+                //   1, 1,
+                //   9.21, 15
+                // ],
                 2,
                 ['interpolate', ['linear'], ['get', 'count'],
                   ...VisMap.Domains.reduce((arr, d, i) => {
-                    arr.push(d, VisMap.Radius[i]);
+                    arr.push(d, VisMap.Sizes[i]);
                     return arr;
                   }, [])
                 ],
                 10,
                 ['interpolate', ['linear'], ['get', 'count'],
                   ...VisMap.Domains.reduce((arr, d, i) => {
-                    arr.push(d, VisMap.Radius[i] * 4);
+                    arr.push(d, VisMap.Sizes[i] * 4);
                     return arr;
                   }, [])
                 ]
               ],
               'circle-color': [
-                'interpolate',
+                'interpolate-hcl',
                 ['linear'],
                 ['get', 'count'],
                 ...VisMap.Domains.reduce((arr, d, i) => {
