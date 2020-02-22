@@ -14,24 +14,33 @@
 
 #map-container.show-label .mapboxgl-marker {
   display: initial;
-  color: #effdff;
 }
 </style>
 
 <script>
 import { mapState, mapGetters } from 'vuex';
 
+const Colors1 = [
+  "#effdff",
+  "#86cbe9",
+  "#c76bae",
+  "#e14da0",
+  "#b91b55",
+  "#660000"
+];
+const Colors2 = [
+  "#b1e5eb",
+  "#90dbfc",
+  "#e170c4",
+  "#d84b86",
+  "#b91b55",
+  "#660000"
+]
+
 const VisMap = {
   Domains: [1, 10, 100, 500, 5000, 10000],
   Radius: [1, 2, 4, 8, 10, 15],
-  Colors: [
-    "#effdff",
-    "#86cbe9",
-    "#c76bae",
-    "#e14da0",
-    "#b91b55",
-    "#660000"
-  ]
+  Colors: Colors2
 }
 
 export default {
