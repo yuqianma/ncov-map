@@ -221,7 +221,7 @@ function genSpec({ width, height, values }) {
       "value": values[values.length - 1].date,
       "on": [
         {
-          "events": "mousemove, touchmove",
+          "events": "[mousedown, window:mouseup] > window:mousemove!, touchmove",
           "update": "invert('x', clamp(x(), 0, width))"
         }
       ]
@@ -282,7 +282,7 @@ function genSpec({ width, height, values }) {
         "update": {
           "x": {"scale": "x", "field": "argmax.yearmonth_date"},
           "y": {"signal": "scale('y', 0.5 * (datum.argmax.sum_count_start + datum.argmax.sum_count_end))"},
-          "align": {"value": "right"},
+          "align": {"signal": "width - scale('x', datum.argmax.yearmonth_date) < 40 ? 'right' : 'center' "},
           "baseline": {"value": "middle"},
           // "fontSize": {"scale": "font", "field": "argmax.perc", "offset": 5},
           "fontSize": {"value": 10},
@@ -323,10 +323,15 @@ function genSpec({ width, height, values }) {
   ],
   "scales": [
     {
+      "name": "_x",
+      "type": "time",
+      "domain": {"data": "table", "field": "yearmonth_date"}
+    },
+    {
       "name": "x",
       "type": "time",
-      "domain": {"data": "table", "field": "yearmonth_date"},
-      "range": [0, {"signal": "width - 5"}],
+      "domain": {"signal": "[domain('_x')[0], timeOffset('date', domain('_x')[1]) - 1]"},
+      "range": [0, {"signal": "width"}]
     },
     {
       "name": "y",
@@ -363,9 +368,10 @@ function genSpec({ width, height, values }) {
     {
       "scale": "x",
       "orient": "bottom",
-      "grid": false,
+      "grid": true,
+      "gridColor": "#aaa",
       "domain": false,
-      "tickSize": 0,
+      "ticks": false,
       "labelFlush": true,
       "labelOverlap": true,
       "tickCount": {"signal": "ceil(width/40)"},
@@ -376,8 +382,7 @@ function genSpec({ width, height, values }) {
       },
       "zindex": 0
     }
-  ],
-  // "legends": [{"fill": "color", "symbolType": "circle", "title": "series"}]
+  ]
 };
 
 }
