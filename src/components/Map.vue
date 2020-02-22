@@ -14,13 +14,25 @@
 
 #map-container.show-label .mapboxgl-marker {
   display: initial;
+  color: #effdff;
 }
 </style>
 
 <script>
 import { mapState, mapGetters } from 'vuex';
 
-const DISTANCE = 50e3;
+const VisMap = {
+  Domains: [1, 10, 100, 500, 5000, 10000],
+  Radius: [1, 2, 4, 8, 10, 15],
+  Colors: [
+    "#effdff",
+    "#86cbe9",
+    "#c76bae",
+    "#e14da0",
+    "#b91b55",
+    "#660000"
+  ]
+}
 
 export default {
   name: 'Map',
@@ -114,6 +126,7 @@ export default {
         container: this.$refs.container,
         center: [104.299012, 34.781634], // starting position
         zoom: 2, // starting zoom
+        minZoom: 2,
         antialias: true,
         style: {
           'version': 8,
@@ -185,50 +198,43 @@ export default {
             'source': 'points',
             // 'minzoom': 7,
             'paint': {
-              // Size circle radius by earthquake magnitude and zoom level
               'circle-radius': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4,
+                2,
                 ['interpolate', ['linear'], ['get', 'count'],
-                  1, 2,
-                  1000, 20
+                  ...VisMap.Domains.reduce((arr, d, i) => {
+                    arr.push(d, VisMap.Radius[i]);
+                    return arr;
+                  }, [])
                 ],
                 10,
                 ['interpolate', ['linear'], ['get', 'count'],
-                  1, 5,
-                  1000, 100
+                  ...VisMap.Domains.reduce((arr, d, i) => {
+                    arr.push(d, VisMap.Radius[i] * 4);
+                    return arr;
+                  }, [])
                 ]
               ],
-              // Color circle by earthquake magnitude
               'circle-color': [
                 'interpolate',
                 ['linear'],
                 ['get', 'count'],
-                1,
-                'rgba(33,102,172,0)',
-                10,
-                'rgb(103,169,207)',
-                50,
-                'rgb(209,229,240)',
-                100,
-                'rgb(253,219,199)',
-                500,
-                'rgb(239,138,98)',
-                1000,
-                'rgb(178,24,43)'
+                ...VisMap.Domains.reduce((arr, d, i) => {
+                  arr.push(d, VisMap.Colors[i]);
+                  return arr;
+                }, [])
               ],
-              // Transition from heatmap to circle layer by zoom level
-              // 'circle-opacity': [
-              //   'interpolate',
-              //   ['linear'],
-              //   ['zoom'],
-              //   4, 0,
-              //   6, 1
-              // ],
+              'circle-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                2, 0.8,
+                6, 1
+              ],
               'circle-stroke-width': 0.1,
-              'circle-stroke-color': '#888',
+              'circle-stroke-color': '#fff',
               // 'circle-stroke-opacity': [
               //   'interpolate',
               //   ['linear'],
@@ -249,16 +255,10 @@ export default {
               'interpolate',
               ['linear'],
               ['get', 'count'],
-              1,
-              'rgb(253,219,199)',
-              // 50,
-              // 'rgb(209,229,240)',
-              // 100,
-              // 'rgb(253,219,199)',
-              // 500,
-              // 'rgb(239,138,98)',
-              1000,
-              'rgb(178,24,43)'
+              ...VisMap.Domains.reduce((arr, d, i) => {
+                arr.push(d, VisMap.Colors[i]);
+                return arr;
+              }, [])
             ],
             'fill-extrusion-base': 0,
             'fill-extrusion-height': [

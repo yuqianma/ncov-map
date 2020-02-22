@@ -94,7 +94,6 @@ store.watch(s => s.playing, (v) => {
   if (v) {
     let date = store.state.dataTime;
     const endDate = dayjs(DateRange[1]).endOf('day');
-    console.log(endDate, date);
     if (endDate.isSame(date, 'date')) {
       date = DateRange[0];
     }
