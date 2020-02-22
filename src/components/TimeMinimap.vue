@@ -52,7 +52,7 @@ export default {
     this.initChart();
   },
   computed: {
-    ...mapState(['paneSize', 'dataTime']),
+    ...mapState(['paneSize', 'dataTime', 'playing']),
     ...mapGetters(['incrementalData']),
   },
   watch: {
@@ -72,7 +72,9 @@ export default {
       this.initChart();
     },
     dataTime(v) {
-      this.view && this.view.signal('indexDate', v).runAsync();
+      if (this.playing) {
+        this.view && this.view.signal('indexDate', v).runAsync();
+      }
     }
   },
   methods: {
@@ -375,11 +377,7 @@ function genSpec({ width, height, values }) {
       "labelFlush": true,
       "labelOverlap": true,
       "tickCount": {"signal": "ceil(width/40)"},
-      "encode": {
-        "labels": {
-          "update": {"text": {"signal": "timeFormat(datum.value, '%m-%d')"}}
-        }
-      },
+      "format": "%m-%d",
       "zindex": 0
     }
   ]
