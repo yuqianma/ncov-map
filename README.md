@@ -1,5 +1,12 @@
 # ncov-map
 
+## 每日数据汇总说明
+
+每半小时从丁香园抓取一次数据，保存在 https://github.com/yuqianma/ncov-map/tree/master/public/dxy
+
+往日数据：取24点前最后一次抓取结果
+当日数据：最新抓取结果
+
 ## 数据源说明
 
 仅供参考，一切以官方数据为准
@@ -13,13 +20,6 @@ https://mp.weixin.qq.com/s/JWxGVZieKj-S0uX9G42ybA
 ### 2020-01-24 开始
 
 丁香园：https://ncov.dxy.cn/ncovh5/view/pneumonia
-
-## 每日数据汇总说明
-
-每半小时从丁香园抓取一次数据，保存在 https://github.com/yuqianma/ncov-map/tree/master/public/dxy
-
-往日数据：取24点前最后一次抓取结果
-当日数据：最新抓取结果
 
 ## 参考
 
