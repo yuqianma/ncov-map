@@ -27,6 +27,7 @@
       </div>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
+      <span class="about-icon" @click="showAbout=true">ⓘ 说明</span>
     </div>
     <div class="point-info">
       <div>{{dataDate}} 累计确诊</div>
@@ -101,7 +102,7 @@
 }
 
 .control {
-  /* height: 34px; */
+  height: 34px;
   width: 100%;
   /* outline: 1px solid #e99; */
   display: flex;
@@ -148,13 +149,23 @@
 }
 
 .update-time {
-  position: fixed;
+  position: absolute;
   bottom: 0;
+  align-self: flex-start;
   font-size: 10px;
   color: #888;
-  align-self: start;
 }
 
+.about-icon {
+  position: absolute;
+  bottom: 0;
+  align-self: flex-end;
+  font-size: 10px;
+  font-weight: bolder;
+  padding-left: 15px;
+  padding-top: 5px;
+  /* outline: 1px solid #000; */
+}
 </style>
 
 <script>
@@ -200,6 +211,14 @@ export default {
       },
       set (v) {
         this.$store.commit('setMapType', v);
+      }
+    },
+    showAbout: {
+      get () {
+        return this.$store.state.showAbout;
+      },
+      set (v) {
+        this.$store.commit('setShowAbout', v);
       }
     }
   },

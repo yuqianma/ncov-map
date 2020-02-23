@@ -30,6 +30,7 @@ const store = new Vuex.Store({
     loadState: null,
     paneSize: 'small',
     playing: false,
+    showAbout: false,
   },
   getters: {
     visiblePoints({ areaStats, dataTime }) {
@@ -69,6 +70,7 @@ const store = new Vuex.Store({
     setMapType: (s, _) => s.mapType = _,
     setPaneSize: (s, _) => s.paneSize = _,
     togglePlay: (s, _) => s.playing = !s.playing,
+    setShowAbout: (s, _) => s.showAbout = _,
   },
   actions: {
     async fetchAllData({ state, commit }) {

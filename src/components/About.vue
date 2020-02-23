@@ -1,3 +1,5 @@
+<template>
+<pre>
 # ncov-map
 
 ## 数据源说明
@@ -30,3 +32,6 @@ https://mp.weixin.qq.com/s/JWxGVZieKj-S0uX9G42ybA
 
 向帆老师作品：
 http://zeelab.cn/WuhanCircleGraph/
+
+</pre>  
+</template>
