@@ -4,6 +4,7 @@
     <div v-if="showAbout" class="about" @click="showAbout = false">
       <About class="content" />
     </div>
+    <GithubCorner />
   </div>
 </template>
 
@@ -59,10 +60,12 @@ html, body, #app {
 </style>
 
 <script>
+import GithubCorner from './components/GithubCorner';
 import About from './components/About';
 
 export default {
   components: {
+    GithubCorner,
     About
   },
   computed: {
