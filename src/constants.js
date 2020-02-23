@@ -12,3 +12,26 @@ export const DateRange = [
 ];
 
 export const SeparateDate = new Date('2020-01-24');
+
+const Colors1 = [
+  "#effdff",
+  "#86cbe9",
+  "#c76bae",
+  "#e14da0",
+  "#b91b55",
+  "#660000"
+];
+const Colors2 = [
+  "#b1e5eb",
+  "#90dbfc",
+  "#e170c4",
+  "#eb1d78",
+  "#b91b55",
+  "#660000"
+]
+
+export const VisMap = {
+  Domains: [1, 10, 100, 500, 5000, 10000],
+  Radii: [1, 2, 4, 8, 10, 15],
+  Colors: Colors2
+}

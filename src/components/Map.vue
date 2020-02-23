@@ -1,13 +1,28 @@
 <template>
-  <div id="map-container" ref="container" :class="{ 'show-label': showLabel }"></div>
+  <div class="map">
+    <div id="map-container" ref="container" :class="{ 'show-label': showLabel }"></div>
+    <MapLegend class="map-legend" :zoom="zoom" :style="{opacity: (3 - zoom) * 0.8}" />
+  </div>
 </template>
 
-<style>
+<style scoped>
+.map {
+  width: 100%;
+  height: 100%;
+}
 #map-container {
   width: 100%;
   height: 100%;
 }
 
+.map-legend {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+</style>
+
+<style>
 #map-container .mapboxgl-marker {
   display: none;
 }
@@ -19,34 +34,17 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex';
-
-const Colors1 = [
-  "#effdff",
-  "#86cbe9",
-  "#c76bae",
-  "#e14da0",
-  "#b91b55",
-  "#660000"
-];
-const Colors2 = [
-  "#b1e5eb",
-  "#90dbfc",
-  "#e170c4",
-  "#eb1d78",
-  "#b91b55",
-  "#660000"
-]
-
-const VisMap = {
-  Domains: [1, 10, 100, 500, 5000, 10000],
-  Sizes: [1, 2, 4, 8, 10, 15],
-  Colors: Colors2
-}
+import { VisMap } from '../constants';
+import MapLegend from '../components/MapLegend';
 
 export default {
   name: 'Map',
+  components: {
+    MapLegend
+  },
   data: () => ({
     showLabel: false,
+    zoom: 2,
   }),
   mounted () {
     this.mapbox();
@@ -192,6 +190,10 @@ export default {
         },
       });
 
+      map.on('zoom', (e) => {
+        this.zoom = e.target.getZoom();
+      });
+
       window._map = map;
       this.map = map;
 
@@ -219,14 +221,14 @@ export default {
                 2,
                 ['interpolate', ['linear'], ['get', 'count'],
                   ...VisMap.Domains.reduce((arr, d, i) => {
-                    arr.push(d, VisMap.Sizes[i]);
+                    arr.push(d, VisMap.Radii[i]);
                     return arr;
                   }, [])
                 ],
                 10,
                 ['interpolate', ['linear'], ['get', 'count'],
                   ...VisMap.Domains.reduce((arr, d, i) => {
-                    arr.push(d, VisMap.Sizes[i] * 4);
+                    arr.push(d, VisMap.Radii[i] * 4);
                     return arr;
                   }, [])
                 ]

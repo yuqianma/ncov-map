@@ -6,10 +6,10 @@
       <Spinner v-if="loading" style="flex-grow: 1;"/>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
-      <div class="type-control">
+      <!-- <div class="type-control">
         change to
         <button @click="toggleMapType">{{changeType}}</button>
-      </div>
+      </div> -->
       <div v-if="loaded" class="play" @click="togglePlay">{{playing ? '■' : '▶'}}</div>
     </div>
     <div class="point-info">
@@ -36,6 +36,7 @@
 }
 
 .geo-map {
+  position: relative;
   height: calc(100% - 150px);
 }
 .large .geo-map {
