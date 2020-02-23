@@ -26,8 +26,8 @@ const Colors2 = [
   "#90dbfc",
   "#e170c4",
   "#eb1d78",
-  "#b91b55",
-  "#660000"
+  "#ae1233",
+  "#550000"
 ]
 
 export const VisMap = {
