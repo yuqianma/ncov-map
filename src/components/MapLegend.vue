@@ -4,7 +4,7 @@
 
 <style scoped>
 div {
-  user-select: none;
+  pointer-events: none;
 }
 </style>
 
