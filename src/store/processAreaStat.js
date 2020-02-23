@@ -17,8 +17,8 @@ export function processAreaStat(areaStat) {
       coordinates: loc.location,
       confirmedCount: data.confirmedCount,
       provinceName: loc.province,
-      cityName: loc.city,
-      areaName: loc.province + loc.city,
+      cityName: loc.city || data.cityName,
+      areaName: loc.province + (loc.city || data.cityName),
       data,
     };
     points.push(point);
