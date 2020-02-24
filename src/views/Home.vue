@@ -27,7 +27,7 @@
       </div>
       <TimeMinimap v-if="loaded" />
       <span class="update-time">update: {{updateTime}}</span>
-      <span class="about-icon" @click="showAbout=true">ⓘ 说明</span>
+      <!-- <span class="about-icon" @click="showAbout=true">ⓘ 说明</span> -->
     </div>
     <div class="point-info">
       <div>{{dataDate}} 累计确诊</div>
