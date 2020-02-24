@@ -6,21 +6,21 @@
       <Spinner v-if="loading"/>
       <div v-if="loaded" class="control">
         <div class="type-control">
-          Map type:
+          Map:
           <input type="radio" id="circle" name="mapType" value="circle" v-model="mapType"/>
           <label for="circle">circle</label>
           <input type="radio" id="3D" name="mapType" value="3D" v-model="mapType"/>
           <label for="3D">3D</label>
         </div>
         <div class="player">
-          <span class="prev">
+          <span class="prev" @click="shiftDataDay(-1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg>
           </span>
           <span class="play" @click="togglePlay">
             <svg v-if="!playing" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
             <svg v-if="playing" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
           </span>
-          <span class="next">
+          <span class="next" @click="shiftDataDay(1)">
             <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg>
           </span>
         </div>
@@ -42,6 +42,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
+  user-select: none;
 }
 
 .disable-interaction {
@@ -170,7 +171,7 @@
 
 <script>
 import { DateRange, LatestTime } from '../constants';
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 import Map from '../components/Map';
 import Spinner from '../components/Spinner';
 import TimeMinimap from '../components/TimeMinimap';
@@ -227,9 +228,8 @@ export default {
       const nextSize = this.size === 'small' ? 'large' : 'small';
       this.$store.commit('setPaneSize', nextSize)
     },
-    togglePlay() {
-      this.$store.commit('togglePlay');
-    }
+    ...mapMutations(['togglePlay']),
+    ...mapActions(['shiftDataDay'])
   }
 }
 </script>

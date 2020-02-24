@@ -60,7 +60,7 @@ const store = new Vuex.Store({
       s.loadState = 'loading';
     },
     setDataTime: (s, v) => {
-      s.dataTime = v >= LatestTime ? LatestTime : v;
+      s.dataTime = Math.max(DateRange[0], Math.min(v, DateRange[1]));
     },
     saveAllData: (s, areaStats) => {
       s.areaStats = areaStats;
@@ -83,9 +83,15 @@ const store = new Vuex.Store({
       await fetchAllAreaStat().then(values => {
         console.timeEnd('load');
         commit('saveAllData', values);
-        // commit('setDataTime', DateRange[0]);
       });
-    }
+    },
+    // TODO
+    // refactor store & vega link
+    shiftDataDay({ state, commit }, v) {
+      store.commit('togglePlay');
+      commit('setDataTime', dayjs(state.dataTime).add(v, 'day').endOf('day'));
+      Vue.nextTick(() => store.commit('togglePlay'));
+    },
   },
   modules: {
   }
