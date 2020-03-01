@@ -16,13 +16,14 @@ export function processAreaStat(areaStat) {
     const point = {
       coordinates: loc.location,
       confirmedCount: data.confirmedCount,
+      existingCount: Math.max(0, data.confirmedCount - data.curedCount),
       provinceName: loc.province,
       cityName: loc.city || data.cityName,
       areaName: loc.province + (loc.city || data.cityName),
       data,
     };
     points.push(point);
-    max = Math.max(max, data.confirmedCount);
+    max = Math.max(max, data.existingCount);
   }
 
   areaStat.forEach(area => {

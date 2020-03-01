@@ -91,7 +91,7 @@ export default {
           return {
             type: 'Feature',
             properties: {
-              count: p.confirmedCount,
+              count: p.existingCount,
               areaName: p.areaName
             },
             geometry: {
@@ -111,7 +111,7 @@ export default {
           return {
             type: 'Feature',
             properties: {
-              count: p.confirmedCount,
+              count: p.existingCount,
               areaName: p.areaName
             },
             geometry: {

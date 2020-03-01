@@ -30,7 +30,7 @@
       <!-- <span class="about-icon" @click="showAbout=true">ⓘ 说明</span> -->
     </div>
     <div class="point-info">
-      <div>{{dataDate}} 累计确诊</div>
+      <div>{{dataDate}} 现存确诊</div>
       <div>{{pointInfo}}</div>
     </div>
   </div>
@@ -204,7 +204,7 @@ export default {
       if (!point) {
         return '';
       }
-      return `${point.areaName}: ${point.confirmedCount}`;
+      return `${point.areaName}: ${point.existingCount}`;
     },
     mapType: {
       get () {

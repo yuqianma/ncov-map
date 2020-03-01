@@ -85,13 +85,13 @@ class FormerData {
       const lngLat = location.join(',');
       const p = lngLatMap[lngLat] = lngLatMap[lngLat] || {
         coordinates: location,
-        confirmedCount: 0,
+        existingCount: 0,
         provinceName: d.loc.province,
         cityName: d.loc.city,
         areaName: d.loc.province + d.loc.city,
         data: [],
       };
-      p.confirmedCount += d.caseNum;
+      p.existingCount += d.caseNum;
       p.data.push(d);
     });
 
