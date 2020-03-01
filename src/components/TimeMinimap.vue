@@ -293,7 +293,7 @@ function genSpec({ width, height, values }) {
           "text": {"field": "provinceName"},
           "fill": {"scale": "color", "field": "provinceName"},
           "stroke": {"value": "#fff"},
-          "opacity": {"signal": "scale('x', indexDate) - scale('x', datum.argmax.yearmonth_date)"}
+          "opacity": {"signal": "(scale('x', indexDate) - scale('x', datum.argmax.yearmonth_date)) / 20"}
         }
       }
     },
