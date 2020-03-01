@@ -246,8 +246,9 @@ function genSpec({ width, height, values }) {
       },
       "encode": {
         "update": {
-          "width": {"field": {"group": "width"}},
-          "height": {"field": {"group": "height"}}
+          "width": {"scale": "x", "signal": "indexDate"},
+          "height": {"field": {"group": "height"}},
+          "clip": {"value": "true"}
         }
       },
       "marks": [
@@ -291,7 +292,8 @@ function genSpec({ width, height, values }) {
           "fontWeight": {"value": "bolder"},
           "text": {"field": "provinceName"},
           "fill": {"scale": "color", "field": "provinceName"},
-          "stroke": {"value": "#fff"}
+          "stroke": {"value": "#fff"},
+          "opacity": {"signal": "scale('x', indexDate) - scale('x', datum.argmax.yearmonth_date)"}
         }
       }
     },
