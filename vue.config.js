@@ -3,4 +3,7 @@ module.exports = {
     ? 'https://cdn.jsdelivr.net/gh/yuqianma/ncov-map@gh-pages/'
     : '',
   productionSourceMap: false,
+  devServer: {
+    hot: false
+  }
 }

@@ -135,6 +135,7 @@ export default {
         zoom: 2, // starting zoom
         minZoom: 2,
         antialias: true,
+        // hash: true,
         style: {
           'version': 8,
           'sources': {

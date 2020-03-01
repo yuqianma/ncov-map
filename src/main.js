@@ -14,4 +14,6 @@ const vm = new Vue({
 if (process.env.NODE_ENV === 'development') {
   window.vm = vm;
   document.querySelector('title').textContent += ' DEV';
+
+  require('./demo');
 }
