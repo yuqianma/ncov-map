@@ -1,7 +1,7 @@
 <template>
   <div class="map">
     <div id="map-container" ref="container" :class="{ 'show-label': showLabel }"></div>
-    <MapLegend class="map-legend" :zoom="zoom" :style="{opacity: (3 - zoom)}" />
+    <MapLegend class="map-legend" :zoom="zoom" />
   </div>
 </template>
 
