@@ -85,30 +85,33 @@ export default {
   },
   methods: {
     dataToPointFeature(points) {
+      const features = [];
+      points.forEach((p, i) => {
+        p.existingCount && features.push({
+          type: 'Feature',
+          properties: {
+            count: p.existingCount,
+            areaName: p.areaName
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: p.coordinates
+          }
+        });
+      });
+
       return {
         "type": "FeatureCollection",
-        "features": points.map((p, i) => {
-          return {
-            type: 'Feature',
-            properties: {
-              count: p.existingCount,
-              areaName: p.areaName
-            },
-            geometry: {
-              type: 'Point',
-              coordinates: p.coordinates
-            }
-          }
-        })
+        features
       }
     },
     dataToPolygonFeature(points) {
       const halfSize = 0.15;
-      return {
-        "type": "FeatureCollection",
-        "features": points.map((p, i) => {
+      const features = [];
+      points.forEach((p, i) => {
+        if (p.existingCount) {
           const [x, y] = p.coordinates;
-          return {
+          features.push({
             type: 'Feature',
             properties: {
               count: p.existingCount,
@@ -124,8 +127,12 @@ export default {
                 [x - halfSize, y + halfSize]
               ]]
             }
-          }
-        })
+          });
+        }
+      });
+      return {
+        "type": "FeatureCollection",
+        features
       }
     },
     mapbox() {
