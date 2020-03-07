@@ -10,8 +10,6 @@ https://ncov-map.hcifun.com/
 
 当日数据：最新抓取结果。
 
-丁香园数据为分省份、城市的“累积确诊”数据。
-
 省份“新增确诊”数据由前后2天相减得出。因为统计的时间点不同，结果可能与官方数据不同。
 
 一切以官方数据为准。
@@ -36,6 +34,11 @@ https://mp.weixin.qq.com/s/JWxGVZieKj-S0uX9G42ybA
 2. 遍历最新数据地理位置名称，使用[高德接口](https://lbs.amap.com/api/webservice/guide/api/georegeo)获取经纬度坐标，保存到项目中。
 3. 打包含最新数据的静态文件。替换 index.html 中 URL，使用 jsdelivr.com 作为 CDN 保证大陆访问。
 4. 使用了 http://sc.ftqq.com/ 通知自己数据变化。
+
+## 主要使用的开源库
+Mapbox-gl: https://github.com/mapbox/mapbox-gl-js
+Vega: https://github.com/vega/vega
+dayjs: https://github.com/dayjs
 
 ## 相关参考
 
