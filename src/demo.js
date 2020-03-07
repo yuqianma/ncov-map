@@ -5,7 +5,7 @@ const map = window._map;
 
 const delay = timeout => new Promise(res => setTimeout(res, timeout));
 
-window.demo = async function () {
+function reset() {
   vm.$store.state.mapType = '3D';
 
   // await new Promise(res => {
@@ -17,15 +17,17 @@ window.demo = async function () {
 
   map.jumpTo({
     bearing: 30,
-    zoom: 3,
+    zoom: 3.5,
     pitch: 60,
     center: [114.305392, 30.593098]
   });
+}
 
+async function run() {  
   setTimeout(() => {
     map.easeTo({
-      bearing: -30,
-      duration: 20000,
+      bearing: -70,
+      duration: 14000,
       easing(t) {
         return t;
       }
@@ -33,5 +35,6 @@ window.demo = async function () {
   
     vm.$store.state.playing = true;
   });
-  
 }
+
+window.demo = { reset, run };
